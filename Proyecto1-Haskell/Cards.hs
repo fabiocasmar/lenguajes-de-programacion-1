@@ -5,7 +5,7 @@
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.2.0                                                             -
--------------------------------------------------------------------------------}
+------------------------------------------------------------------------------}
 
 -- module Cards: modulo que posee lo necesario para emular las cartas del juego LambdaJack 
 module Cards (Card (Card),

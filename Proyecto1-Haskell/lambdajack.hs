@@ -4,8 +4,8 @@
 - Correo: fabiocasmar@gmail.com                                               - 
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.2.0                                                             -
--------------------------------------------------------------------------------}
+- version: v0.3.0                                                             -
+------------------------------------------------------------------------------}
 
 module Main where
 
@@ -85,56 +85,49 @@ miMano ma = do
 -- partida: función que simular la partida a jugar
 partida :: GameState -> Hand -> Hand -> IO ()
 partida (GS w x y z) b c = do 
-	let aux = maybeToHand (draw b c)
-	let ply = playLambda b
 	tuMano (GS w x y z) c
 	if (busted c) then do
 		perdiste
-		(continuePlaying)>>= (\f -> 
-								if f then 
-									gameloop (GS (w+1) (x+1) y z) 
-								else do 
-									putStrLn ""
-									currentState (GS (w+1) (x+1) y z) 
-									putStrLn "Juego Finalizado")
+		(continuePlaying)>>= (\f -> finalizador f (GS (w+1) (x+1) y z))
 	else do
 		putStrLn ". ¿Carta o Listo? "
-		(getLine)>>=(\g ->
+		(getLine)>>=(\g -> selector (GS w x y z) b c g)
+	where
 
+		selector :: GameState -> Hand -> Hand -> String -> IO()
+		selector (GS w x y z) b c g = do
+			let aux = maybeToHand (draw b c)
 			if (((head g)=='c') || ((head g)=='l') || ((head g)=='C') || ((head g)=='L'))&&
 					((length g) < 2) then
 				if ((head g)=='c')|| ((head g)=='C') then 
 					partida (GS w x y z) (fst aux) (snd aux)
 				else do
+					let ply = playLambda b
 					tuMano (GS w x y z) c
 					miTurno
+					miMano ply
 					if (show (winner ply c)) == "LambdaJack"
 						then do
 							if (valueH ply)==(valueH c) then do
-								miMano ply
 								empate
 							else do
-								miMano ply
 								yoGano	
-							(continuePlaying)>>= (\f -> 
-													if f then 
-														gameloop (GS (w+1) (x+1) y z) 
-													else do 
-														putStrLn ""
-														currentState (GS (w+1) (x+1) y z) 
-														putStrLn "Juego Finalizado")
+							(continuePlaying)>>= (\f -> finalizador f (GS (w+1) (x+1) y z)) 
 					else do
-						miMano ply
 						tuGanas
-						(continuePlaying)>>= (\f -> 
-											if f then 
-												gameloop (GS (w+1) x y z) 
-											 else do 
-											 	putStrLn ""
-											 	currentState (GS (w+1) x y z) 
-											 	putStrLn "Juego Finalizado")
+						(continuePlaying)>>= (\f -> finalizador f (GS (w+1) x y z))
 			else do
-				partida (GS w x y z) b c)
+				partida (GS w x y z) b c
+
+		finalizador :: Bool -> GameState -> IO ()
+		finalizador f x = do
+			if f then 
+				gameloop x
+			else do 
+				putStrLn ""
+				currentState x
+				putStrLn "Juego Finalizado"
+
 
 -- gameloop: función que simula el ciclo del juego
 gameloop :: GameState -> IO ()

@@ -5,7 +5,7 @@
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.2.0                                                             -
--------------------------------------------------------------------------------}
+------------------------------------------------------------------------------}
 
 -- module LambdaJack: módulo que contiene todo lo necesario para emular el juego LambdaJack
 module LambdaJack (

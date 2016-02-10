@@ -5,7 +5,7 @@
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.2.0                                                             -
--------------------------------------------------------------------------------}
+------------------------------------------------------------------------------}
 
 --  2) Verificador de Tautologías 
 -- 		Representación de Expresiones
