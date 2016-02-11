@@ -4,7 +4,7 @@
 - Correo: fabiocasmar@gmail.com                                               - 
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.2.0                                                             -
+- version: v0.3.0                                                             -
 ------------------------------------------------------------------------------}
 
 -- module LambdaJack: módulo que contiene todo lo necesario para emular el juego LambdaJack
@@ -62,11 +62,11 @@ busted (H xs) = if valueH (H xs) > 21 then True else False
 winner :: Hand -> Hand -> Player
 winner mLY mY = if (busted mLY) 
 				then 
-					LambdaJack 
+					You
 				else 
 					if (busted mY)
 						then 
-							You
+							LambdaJack
 						else
 							if valueH mY > valueH mLY then
 								You

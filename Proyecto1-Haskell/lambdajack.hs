@@ -86,12 +86,13 @@ miMano ma = do
 partida :: GameState -> Hand -> Hand -> IO ()
 partida (GS w x y z) b c = do 
 	tuMano (GS w x y z) c
+	let random = randomR (1::Int,10000::Int) z
 	if (busted c) then do
 		perdiste
-		(continuePlaying)>>= (\f -> finalizador f (GS (w+1) (x+1) y z))
+		(continuePlaying)>>= (\f -> finalizador f (GS (w+1) (x+1) y (snd random)))
 	else do
 		putStrLn ". ¿Carta o Listo? "
-		(getLine)>>=(\g -> selector (GS w x y z) b c g)
+		(getLine)>>=(\g -> selector (GS w x y (snd random)) b c g)
 	where
 
 		selector :: GameState -> Hand -> Hand -> String -> IO()
