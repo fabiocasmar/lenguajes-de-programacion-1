@@ -1,117 +1,148 @@
-{------------------------------------------------------------------------------
-- Nombre del archivo: true.hs                                                 -
-- Autor: Fabio Castro                                                         -
-- Correo: fabiocasmar@gmail.com                                               -
-- Organización: Universidad Simón Bolívar                                     -
-- Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.2.0                                                             -
-------------------------------------------------------------------------------}
+{-
+	true.hs
+	Archivo con la implementación de un verificador de tautologías (expresiones de Lógica Proposicional de Primer Orden)
+	Hecho por:	Richard Lares 		11-10508
+				Patricia Reinoso 	11-10851
+-}
 
---  2) Verificador de Tautologías 
--- 		Representación de Expresiones
-data Proposition = Variable String
-				| Negation Proposition
-				| Conjunction Proposition Proposition
-				| Disjunction Proposition Proposition
-				| Conditional Proposition Proposition
-				| Biconditional Proposition Proposition
-			deriving Eq
+-- Tipo de datos recursivo monomórfico para representar expresiones de lógica proposicional
+data Proposition = Constant Bool						-- Constructor para las constantes booleanas (:: Bool)
+				 | Variable String						-- Constructor para las variables (::String)
+				 | Negation Proposition 				-- Constructor para la negación de una expresión
+				 | Conjunction Proposition Proposition 	-- Constructor para la conjunción de dos expresiones
+				 | Disjunction Proposition Proposition 	-- Construtor para la disyunción de dos expresiones
+				 | Implication Proposition Proposition	-- Constructor para la impliciación de dos expresiones
+				 deriving (Show)
 
-instance Show Proposition where
-		show (Variable x)		    = show x
-		show (Negation y)      	    = "¬" ++ show y
-		show (Conjunction z w)  	= "(" ++ show z ++ "^" ++ show w ++ ")"
-		show (Disjunction v u)  	= "(" ++ show v ++ "or" ++ show u ++ ")"
-		show (Conditional s t)    	= "(" ++ show s ++ "=>" ++ show t ++ ")"
-		show (Biconditional p q)  	= "(" ++ show p ++ "<=>" ++ show q ++ ")"
+-- Tipo sinónimo para ambientes de evaluación de una proposición lógica
+type Environment = [(String,Bool)]
 
-type Variable = (String,Bool)
-
-type Environment = [Variable] 
-
---		Ambiente de Evaluación
+-- La función find busca una variable en un ambiente de evaluación y devuelve su valor (si la misma existe)
 find :: Environment -> String -> Maybe Bool
-find env k = mtl(foldr (\x y -> if fst x == k then [snd x] else y) [] env)
-	where 
-		mtl ::  [Bool] -> Maybe Bool
-		mtl (x:_) = Just x
-		mtl []    = Nothing
+find [] _ = Nothing				-- Si el ambiente de evaluación no tiene variables, devuelve Nothing
+find ((x,y):l) k
+	| x == k 		= Just y 	-- Si la variable fue encontrada, se devuelve su valor (con Just)
+	| otherwise 	= find l k	-- Si no ha sido encontrada aún, se busca en el resto del ambiente
 
+-- La función addOrReplace añade una variable a un ambiente, o modifica el valor de ésta si ya existía en dicho ambiente
 addOrReplace :: Environment -> String -> Bool -> Environment
-addOrReplace env var val = if find env var == Nothing then
-								(var,val):env
-							else 
-								foldr (\x y -> if fst x == var then (var,val):y else x:y) [] env
-
-addOrReplace2 :: Environment -> String -> Bool -> Environment
-addOrReplace2 env var val = foldr (\x y -> if fst x == var then (var,val):tail(y) else x:y) [(var,val)] env
-
-
+addOrReplace l x b = 	if find l x == Nothing	
+							then (x,b):l 			-- Si la variable no existía se añade al principio del ambiente
+							else addAux l [] x b 	-- Si ya existía se añade utilizando addAux (auxiliar)
+	where 	
+		addAux [] l x b = reverse l 				-- Si ya se recorrió todo el ambiente, se retorna el mismo con la
+													-- variable modificada
+		addAux (t@(l,m):n) q x b
+			| l == x 	= addAux n ((x,b):q) x b 	-- Si la variable fue encontrada, se modifica su valor
+			| otherwise	= addAux n (t:q) x b 		-- Si no ha sido encontrada aún, se busca en el resto del ambiente
+		
+-- La función remove elimina una variable de un ambiente		
 remove :: Environment -> String -> Environment
-remove env var = foldr (\x y -> if fst x == var then y else x:y) [] env
+remove e k = remAux e k []
+	where 	
+		remAux [] _ l 				= reverse l 			-- Se devuelve el ambiente recorrido (si la variable fue
+															-- eliminada o no porque no fue encontrada)
+		remAux ((x,y):m) k l 
+			| x==k 					= remAux m k l 			-- Si la variable fue encontrada, no se agrega al nuevo
+															-- ambiente
+			| otherwise				= remAux m k ((x,y):l)	-- Si no fue encontrada, se busca en el resto
 
---		Evaluando valores de verdad
+a = [("x",True),("y",False)] :: Environment
+
+-- La función evalP recorre una proposición apoyándose en un ambiente de evaluación y calcula su valor de verdad
 evalP :: Environment -> Proposition -> Maybe Bool
-evalP env expr = do
-	case expr of
-		Variable      a   -> (find env a)
-		Negation      a   -> (mnot (evalP env a))
-		Conjunction   a b -> (mand (evalP env a) (evalP env b))
-		Disjunction   a b -> (mor (evalP env a) (evalP env b))
-		Conditional   a b -> (mor (evalP env a) (mnot (evalP env b)))
-		Biconditional a b -> (mequival (evalP env a) (evalP env b))
-		where
-			mnot :: Maybe Bool -> Maybe Bool
-			mnot (Just True)  = (Just False)
-			mnot (Just False) = (Just True)
-			mnot Nothing      = Nothing
 
-			 mor :: Maybe Bool -> Maybe Bool -> Maybe Bool
-			mor (Just True)  _            = (Just True)
-			mor _            (Just True)  = (Just True)
-			mor (Just False) (Just False) = (Just False)
-			mor Nothing      _            = Nothing
-			mor _            Nothing      = Nothing
+-- Si la expresión es una constante, se devuelve su valor
+evalP _ (Constant b) 	  = Just b 		
 
-			mand :: Maybe Bool -> Maybe Bool -> Maybe Bool
-			mand (Just True)  (Just True)  = (Just True)
-			mand _            (Just False) = (Just False)
-			mand (Just False) _            = (Just False)
-			mand Nothing      _            = Nothing
-			mand _            Nothing      = Nothing
+-- Si la expresión no es una constante, se busca su valor en el ambiente de evaluación mediante la función find								
+evalP e (Variable s)      = find e s 
+evalP e (Negation p)      = f (evalP e p)	
+							where 
+								-- Si el valor es encontrado, se niega
+								f (Just p) = Just (not p)
+								f _ 	   = Nothing
+evalP e (Conjunction p q) = f (evalP e p) (evalP e q)
+							where
+								-- Si ambos valores son encontrados, se aplica and entre ellos
+								f (Just p) (Just q) = Just (p && q)
+								f _ _ 				= Nothing
+evalP e (Disjunction p q) = f (evalP e p) (evalP e q)
+							where
+								-- Si ambos valores son encontrados, se aplica or entre ellos
+								f (Just p) (Just q) = Just (p || q)
+								f _ _ 				= Nothing
 
-			mequival :: Maybe Bool -> Maybe Bool -> Maybe Bool
-			mequival (Just True)  (Just True)  = (Just True)
-			mequival (Just False) (Just False) = (Just True)
-			mequival (Just False) (Just True)  = (Just False)
-			mequival (Just True)  (Just False) = (Just False)
-			mequival Nothing      _            = Nothing
-			mequival _            Nothing      = Nothing
+evalP e (Implication p q) = f (evalP e p) (evalP e q)
+							where 
+								-- Si ambos valores son encontrados, se implican (sólo es False cuando
+								-- el antecedente es True y el consecuente es False)
+								f Nothing _ 		       = Nothing
+								f _ Nothing 		       = Nothing
+								f (Just True) (Just False) = Just False
+								f _ _				       = Just True
 
--- 		The truth shall set you free!
-isTautology :: Proposition ->  Bool
-isTautology expr = 
-	foldr (\x y -> if x == Just False then False else y) True (arreglo expr)
+-- La función vars extrae los nombres de variables de una proposición sin repetirlos								
+vars :: Proposition -> [String]
+vars p = f p []
 	where
-		arreglo :: Proposition -> [Maybe Bool] 
-		arreglo expr = foldr (\x y -> (evalP x expr):y) [] (foldr (\x y -> agregaVar x y) [[]] (vars expr))
+		f (Constant b) xs 		= xs								-- Si la expresión es una constante, se devuelve la
+																	-- lista original
+		f (Variable s) xs 		= if elem s xs then xs else s : xs	-- Si la expresión es una variable, se verifica
+																	-- si la variable ya estaba en la lista de variables
+																	-- para agregarla a la misma o no
+		f (Negation p) xs 		= f p xs							-- Si la expresión es unaria, se verifica la expresión
+		f (Conjunction p q) xs  = f p (f q xs)						-- Si la expresión es binaria, se verifican ambas
+		f (Disjunction p q) xs  = f p (f q xs)
+		f (Implication p q) xs  = f p (f q xs)
 
+-- La función isTautology genera todos los ambientes de evaluación posibles para una proposición lógica dada, y determina
+-- si ésta es una tautología
+isTautology :: Proposition -> Bool
+isTautology p =  foldr f True (map (\x -> evalP x p) (aux(vars p)))
+	where 
+		-- aux es una función auxiliar que genera la lista con todos los ambientes de evaluación posibles para una lista
+		-- de variables dada
+		aux = foldr (\x y -> (map ((x,True):) y) ++ (map ((x,False):) y)) [[]] 
+		-- f evalua la conjunción entre un Just Bool y Bool (para aplicarlo con los resultados de evalP de cada ambiente)
+		f (Just a) b = a && b
+		f _ _ 		= error "No está definido"
 
-		agregaVar :: String -> [Environment] -> [Environment]
-		agregaVar a [[]] = [[(a,True)],[(a,False)]]
-		agregaVar a b =  (foldr (\x y -> ((a,False):x):y) [[]] b) ++
-							 (foldr (\x y -> ((a,True):x):y) [[]] b)
+{- PRUEBAS -}
 
-		vars :: Proposition -> [String]
-		vars expr = do
-			case expr of
-				Variable      a   -> [a] 
-				Negation	  a   -> vars a
-				Conjunction   a b -> uconcat (vars a) (vars b)
-				Disjunction   a b -> uconcat (vars a) (vars b)
-				Conditional   a b -> uconcat (vars a) (vars b)
-				Biconditional a b -> uconcat (vars a) (vars b)
-				where
-					uconcat z w  = foldr (\x y -> if already x y then y else x:y) z w
-					already x [] = False
-					already z w  = foldr (\x y -> if x == z then True else y) False w
+x = Conjunction (Variable "a") (Variable "b")
+y = Conjunction (Variable "c") (Variable "d")
+z = Disjunction x y
+
+w = Conjunction (Constant True) (Constant True)
+w1 = Disjunction (Variable "b") (Constant True)
+w2 = Conjunction (Constant True) (Variable "b")
+w3 = Implication z w1
+w4 = Conjunction (Constant False) (Variable "b")
+w5 = Disjunction (Constant True) (Conjunction ( Variable "a") (Variable "b"))
+
+--3.76 b
+deb = Implication (Conjunction (Variable "p") (Variable "q")) (Variable "p")
+
+--Una contradicción random
+contrad = Conjunction (Implication (Variable "p") (Variable "q")) (Conjunction (Variable "p") (Negation (Variable "q")))
+
+--Contingencia
+conting= Disjunction (Variable "p") (Implication (Variable "q") (Variable "r"))
+
+-- Implicaciones (tautologia)
+
+impl = Implication (Conjunction (Implication (Variable "p") (Variable "q")) (Implication (Variable "q") (Variable "r"))) (Implication (Variable "p") (Variable "r"))
+
+-- Random (tautologia)
+
+rand1= Implication (Conjunction (Disjunction (Variable "p") (Variable "q")) 
+					(Negation (Variable "q"))) (Variable "p")
+
+-- (((p -> q) & (¬ p -> r)) & (¬ q -> ¬ r)) -> q
+
+rand2 = Implication 
+			(Conjunction 
+				(Conjunction (Implication (Variable "p") (Variable "q")) (Implication (Negation (Variable "p")) (Variable "r"))) 
+				(Implication (Negation (Variable "q")) (Negation (Variable "r")))) 
+			(Variable "q")

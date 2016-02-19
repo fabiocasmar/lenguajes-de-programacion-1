@@ -1,138 +1,87 @@
-{------------------------------------------------------------------------------- 
-- Nombre del archivo: LambdaJack.hs                                           -
-- Autor: Fabio Castro                                                         -
-- Correo: fabiocasmar@gmail.com                                               - 
-- Organización: Universidad Simón Bolívar                                     -
-- Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.3.0                                                             -
-------------------------------------------------------------------------------}
+{-
+	LambdaJack.hs
+	Módulo con los tipos de datos y funciones necesarias para implementar las reglas de Lambda-Jack
+	Hecho por:	Richard Lares 		11-10508
+				Patricia Reinoso 	11-10851
+-}
 
--- module LambdaJack: módulo que contiene todo lo necesario para emular el juego LambdaJack
-module LambdaJack (
-		Player,
-		valueH,
-		cardValue,
-		busted,
-		winner,
-		fullDeck,
-		draw,
-		maybeToHand,
-		playLambda,
-		shuffle
-	) where
-
-import Cards 
-import System.Random
-
--- data Player: tipo de dato Player, que define si el jugador es Lambda o Tu
-data    Player    = LambdaJack | You
-				    deriving (Eq, Show)
-
--- valueH: función que permite calcular la suma del valor de las cartas de un mazo
-valueH :: Hand -> Int
-valueH (H [])  = 0
-valueH (H xs)  = do
-	let x = totalTemp (H xs)
-	let y = (fst x)*11 + (snd x)
-
-	if fst x == 0 then
-		snd x
-	else
-		if (y < 21) then
-			y
-		else 
-			(fst x)*1 + (snd x)
+module LambdaJack (Player (LambdaJack, You), value, busted, winner, fullDeck, draw, playLambda, shuffle)
 	where
-	totalTemp :: Hand -> (Int,Int)
-	totalTemp (H []) = (0,0)
-	totalTemp (H xs) = foldr (\x y -> do 
-						let x1 = cardValue x
-						if x1 == 11
-							then 
-								(fst y + 1,(snd y)) 
-							else 
-								(fst y,(snd y)+(x1))) (0,0) xs
 
--- busted: función que ayuda a indicar si la suma del valor de las cartas de una mano es mayor a 21
+import Cards
+import qualified System.Random as R
+
+-- Tipo de datos para los dos jugadores de Lambda-Jack
+data Player = LambdaJack | You deriving (Show)
+
+-- La función value determina el valor numérico de una mano
+value :: Hand -> Int
+value (H xs) = if fst res > 21 then fst res - (snd res) * 10 else fst res
+				-- res es una tupla cuyo fst contiene el valor numérico de la mano, 
+				-- y snd contiene la cantidad de Aces de la mano
+ 				where res = foldr (\x (y1,y2) -> 	
+					let v = cardValue x 
+						-- La función cardValue determina el valor numérico de una carta según las reglas de Lambda-Jack
+						where
+							cardValue (Card (Numeric n) _)	= n
+							cardValue (Card Ace _)			= 11
+							cardValue (Card _ _)			= 10
+					in if v==11 then (y1+v,y2+1) else (y1+v,y2)) (0,0) xs 	-- Si el valor numérico es mayor a 21, 
+ 																			-- los Aces valen 1 en lugar de 11
+-- La función busted indica si una mano "explotó" por exceder 21 																			
 busted :: Hand -> Bool
-busted (H []) = False
-busted (H xs) = if valueH (H xs) > 21 then True else False
+busted h = value h > 21
 
--- winner: función que indica, dado dos jugadores, cual es el ganador
+-- La función winner compara la mano del jugador (h2) con la de Lambda (h1) para determinar el ganador 
 winner :: Hand -> Hand -> Player
-winner mLY mY = if (busted mLY) 
-				then 
-					You
-				else 
-					if (busted mY)
-						then 
-							LambdaJack
-						else
-							if valueH mY > valueH mLY then
-								You
-							else
-								LambdaJack
+winner h1 h2 = if busted h1 && busted h2 then LambdaJack 		-- Si los jugadores "explotan", gana Lambda
+				else if busted h2 then LambdaJack 				-- Si el jugador explota, gana Lambda
+					else if busted h1 then You 					-- Si sólo explota Lambda, gana el jugador
+						else if value h1 < value h2 then You 	-- Si ninguno explota, gana el jugador si el valor de su
+							else LambdaJack 					-- mano es mayor estricto al valor de la mano de Lambda,
+																-- y gana Lambda eoc
 
--- fullDeck: haciendo uso de listas de compresión genera el mazo completo de cartas
+-- La función fullDeck devuelve un mazo completo de la baraja en cualquier orden
 fullDeck :: Hand
-fullDeck = H [ Card i j | i <- [Jack,Queen,King,Ace,
-								Numeric 2,Numeric 3,Numeric 4,
-								Numeric 5,Numeric 6,Numeric 7,
-								Numeric 8,Numeric 9,Numeric 1], 
-					  j <- [Clubs,Diamonds,Spades,Hearts]]
+fullDeck = H [ Card x y | x<-map (Numeric) [2..10] ++ [Jack , Queen , King , Ace], y<-[Clubs , Diamonds , Spades , Hearts]  ]
 
--- draw: Si puede, toma la primera carta del mazo y la coloca en la otra mano
+-- La función draw retira la primera carta del mazo de cartas y la añade a la mano del jugador, si es posible
 draw :: Hand -> Hand -> Maybe (Hand,Hand)
-draw (H [])     (H mjs)     = Nothing
-draw (H mrs)    (H mjs) 	= Just ((H (tail mrs)), (H ((head mrs):mjs)))
+draw d@(H []) h = Just (d,h)						-- Si el mazo está vacío, se devuelve una tupla con el mismo y la 
+													-- mano del jugador sin modificar
+draw (H (x:xs)) (H ys) = Just (H xs, (H (x:ys)))	-- Si el mazo no está vacío, se devuelve una tupla con el mazo
+													-- sin su primera carta ya que fue añadida a la mano del jugador
 
--- maybeToHand: convierte un par Maybe (Hand,Hand) a (Hand,Hand) 
-maybeToHand:: Maybe (Hand,Hand) -> (Hand,Hand)
-maybeToHand (Just x) = x
-maybeToHand Nothing  = (empty,empty)
-
--- playLambda: función que emula la forma de jugar de Lambda, donde pide cartas hasta que tenga más de 16
-playLambda :: Hand -> Hand 
-playLambda m = playLambdaAux m empty
+-- La función playLambda produce la mano de Lambda siguiendo las reglas con las que debe jugar a partir del mazo
+-- que quedó después de la jugada del jugador, valga la redundancia
+playLambda :: Hand -> Hand
+playLambda d = auxL d (H [])
+	where	
+		-- Si el mazo está vacío, se devuelve la mano sin modificar; si no lo está, se añaden cartas a la mano de
+		-- Lambda hasta que el valor de la misma sea mayor o igual a 16
+		auxL (H []) h = h 	
+		auxL (H (x:xs)) h@(H ys) = if value (H (x:ys)) >=16 then (H (x:ys)) else auxL (H xs) (H (x:ys))
+		
+-- La función shuffle recibe un mazo sin barajar y lo baraja		
+shuffle :: R.StdGen -> Hand -> Hand
+-- El acumulador del fold es una tripleta con el mazo acumulador, el generador, y el mazo original, respectivamente
+shuffle g (H a) = first $ foldl checkCard ((H []),g,a) a 
 	where 
-	playLambdaAux :: Hand -> Hand -> Hand 
-	playLambdaAux m  n = do
-		let mazo = maybeToHand (draw m n)
-		if (valueH n) >= 16 
-			then 
-			 	n
-			else 
-				if (mazo == (empty,empty))
-					then
-						n
-					else 
-						(playLambdaAux (fst mazo) (snd mazo)) 
+			-- La función checkCard verifica si una carta escogida al azar del mazo original está en el mazo acumulador
+			checkCard (n@(H ns),g,a) x = 	let 
+												ng = R.randomR (0,51) g -- Tupla con un número al azar y un nuevo generador
+												ne = a !! fst ng 		-- Elemento escogido al azar
+											in 	if elem ne ns 
+													-- Si el elemento ya está, se busca otro
+													then checkCard (n,snd ng,a) x
+													-- Si el elemento no está, se agrega al mazo acumulador
+													else ((H (ne:ns)),snd ng,a) 
+			-- La función first devuelve el primer elemento de una tripleta
+			first (a,b,c) 		= a
 
+{- PRUEBAS -} 
 
+differents (H xs) = and $ map (/=head xs) (tail xs)
 
-
--- shuffle: función que recibe una semilla pseudo aleatoria para barajar el mazo,
---			 tomando una carta aleatoria del mazo y colocandola en el otro mazo, 
---			  hace uso de tuplas y fold
-shuffle :: StdGen -> Hand -> Hand
-shuffle rn (H ys) = H (snd4 (foldr (\_ x -> (randomCard x)) (ys,[],(size (H ys)),rn) ys))
-	where 
-	randomCard :: ([Card],[Card],Int,StdGen) -> ([Card],[Card],Int,StdGen)
-	randomCard x = do
-		let random = randomR (1,(thr4 x)) (frt4 x)
-		let baraja = splitAt ((fst random)-1) (fst4 x)
-		let mazo1  = (fst baraja)++(tail (snd baraja))
-		let mazo2  = (head (snd baraja)):(snd4 x)
-		((mazo1),(mazo2),((thr4 x)-1),(snd random))
-
-	fst4 :: ([Card],[Card],Int,StdGen) -> [Card]
-	fst4 (x,_,_,_) = x 
-
-	snd4 :: ([Card],[Card],Int,StdGen) -> [Card]
-	snd4 (_,x,_,_) = x 
-
-	thr4 :: ([Card],[Card],Int,StdGen) -> Int
-	thr4 (_,_,x,_) = x 
-
-	frt4 :: ([Card],[Card],Int,StdGen) -> StdGen
-	frt4 (_,_,_,x) = x
+me = H [ Card Ace Hearts, Card King Hearts]
+pc = H [ Card Ace Hearts, Card King Hearts, Card Ace Diamonds, Card King Diamonds]

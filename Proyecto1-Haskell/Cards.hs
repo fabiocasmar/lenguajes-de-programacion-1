@@ -1,68 +1,61 @@
-{------------------------------------------------------------------------------
-- Nombre del archivo: Cards.hs                                                -
-- Autor: Fabio Castro                                                         -
-- Correo: fabiocasmar@gmail.com                                               -
-- Organización: Universidad Simón Bolívar                                     -
-- Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.2.0                                                             -
-------------------------------------------------------------------------------}
+{-
+	Cards.hs
+	Módulo con los tipos de datos y funciones necesarias para la manipulación de cartas utilizadas en Lambda-Jack
+	Hecho por:	Richard Lares 		11-10508
+				Patricia Reinoso 	11-10851
+-}
 
--- module Cards: modulo que posee lo necesario para emular las cartas del juego LambdaJack 
-module Cards (Card (Card),
-			  Suit (Clubs, Diamonds, Spades, Hearts), 
-			  Value (Numeric, Jack, Queen, King, Ace), 
-			  Hand (H), 
-			  empty, 
-			  size,
-			  cardValue) where
+module Cards ( Hand(H), Suit (Clubs,Diamonds,Spades,Hearts), Value (Numeric,Jack,Queen,King,Ace), Card(Card),
+				empty, size ) where
 
--- Card: tipo de dato carta, contiene el valor y la pinta de la carta
-data    Card      = Card {value :: Value, suit :: Suit}
-					deriving (Eq)
+-- Tipo de datos para representar los "palos" de la baraja francesa: Trébol, Diamante, Pica y Corazón
+data Suit = Clubs | Diamonds | Spades | Hearts deriving (Eq)
 
--- Suit: tipo de dato pinta, que contiene a que pinta pertenece
-data    Suit      = Clubs | Diamonds | Spades | Hearts
-					deriving (Eq)
-
--- Value: tipo de dato que indica el tipo de carta que es, A, 9...
-data    Value     = Numeric Int | Jack | Queen | King | Ace
-					deriving (Eq)
--- Hand: tipo de dato que permite emular la mano de un jugador, o un mazo de cartas.
-newtype Hand      = H [Card]
-					deriving (Eq)
--- instances Show Card, Suit, Value, que ayudan a imprimir las cartas en el formato deseado
-instance Show Card where
-	show (Card x y) = (show x) ++ (show y)
-
+-- Se define show para cada constructor, cambiando su nombre por śu símbolo
 instance Show Suit where
-	show Clubs    = "♧"
-	show Diamonds = "♢"
-	show Spades   = "♤"
-	show Hearts   = "❤"
+	show Clubs    = "♧" 
+	show Diamonds = "♦" 
+	show Spades   = "♤" 
+	show Hearts   = "♥"
 
-instance Show Value where 
-	show (Numeric x) = (show x)
-	show Jack        = "J"
-	show Queen       = "Q"
-	show King        = "K"
-	show Ace         = "A"
+-- Tipo de datos para representar los valores de las cartas: 1-10, J, Q, K, y A
+data Value = Numeric Int | Jack | Queen | King | Ace deriving (Eq)
 
+-- Se define show para mostrar el número o letra asociado a cada valor
+instance Show Value where
+	show (Numeric n) = show n
+	show Jack 	= "J"
+	show Queen 	= "Q"
+	show King 	= "K"
+	show Ace 	= "A"
+
+-- Tipo de datos para representar la baraja francesa
+data Card = Card {
+					value :: Value,
+					suit :: Suit
+				 }
+
+-- Se define show para mostrar el palo y el valor de una carta, en lugar de sus constructores
+instance Show Card where
+	show c = (show.suit)c ++ (show.value)c
+
+-- Se define eq, de manera que dos cartas son iguales cuando tienen mismo palo y mismo valor, y son diferentes eoc
+instance Eq Card where
+	(==) (Card a b) (Card c d) 	= (a==c) && (b==d)
+	(/=) c v 					= not (c==v)
+
+-- Tipo de datos para modelar la mano de cartas de un jugador
+newtype Hand = H [Card]
+
+-- Se define show para mostrar las cartas que tiene un jugador en su "mano"
 instance Show Hand where
-	show (H a) = foldl (\x y-> (show y)++" "++x) (show (head a)) (tail a)
+	show (H []) 	= ""
+	show (H (x:xs)) = show x ++ " " ++ show (H xs)
 
--- empty: nos devuelve una mazno vacía
+-- La función empty produce una mano vacía
 empty :: Hand
 empty = H []
 
--- size: nos devuelve el tamaño del mazo
+-- La función size determina la cantidad de cartas en una mano
 size :: Hand -> Int
-size (H []) = 0
-size (H xs) = foldr (\x y -> y+1) 0 xs
-
--- cardValue: nos devuelve el valor de la carta en el LambdaJack
-cardValue :: Card -> Int
-cardValue (Card (Numeric x) _) = x
-cardValue (Card (Jack) _)      = 10
-cardValue (Card (Queen) _)     = 10
-cardValue (Card (King) _)      = 10
-cardValue (Card (Ace) _)       = 11
+size (H h) = length h
