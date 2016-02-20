@@ -14,7 +14,7 @@ filterC :: (a -> Bool) -> [a] -> [a]
 filterC p xs = [x | x<-xs, p x]
 
 -- Implantación de filter utilizando map (y otras funciones auxiliares)
-filterC :: (a -> Bool) -> [a] -> [a]
+filterM :: (a -> Bool) -> [a] -> [a]
 filterM  p xs = concatMap (\x -> if (p x) == True then [x] else []) xs
 
 -- Implantación de filter utilizando foldr
