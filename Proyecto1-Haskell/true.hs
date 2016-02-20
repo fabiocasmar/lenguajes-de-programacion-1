@@ -42,14 +42,7 @@ find e k = foldl findAux Nothing e
 
 
 addOrReplace :: Environment -> String -> Bool -> Environment
-addOrReplace e k v = if find e k  == Nothing
-						then (k,v):e
-						else foldl addAux [] e
-						where
-							addAux nenv a@(str,bool) = 
-								if str == k 
-									then (str,v):nenv
-									else a:nenv
+addOrReplace e k v = foldl (\x y -> if fst y == k then (k,v):x else y:x) [] e 
 
 
 remove :: Environment -> String -> Environment
