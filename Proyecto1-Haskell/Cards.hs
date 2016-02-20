@@ -1,7 +1,7 @@
 {------------------------------------------------------------------------------
 - Nombre del archivo: Cards.hs                                                -
--	Hecho por:	Fabio 	Castro 		10-10132
--				Patricia Reinoso 	11-10851                                  -                                           -
+-	Hecho por:	Fabio 	Castro 		10-10132                      -
+-			Patricia Reinoso 	11-10851                      -   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.3.0                                                             -

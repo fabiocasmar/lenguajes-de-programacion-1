@@ -1,7 +1,7 @@
 {------------------------------------------------------------------------------
-- Nombre del archivo: true.hs                                                 -
-- Autor: Fabio Castro                                                         -
-- Correo: fabiocasmar@gmail.com                                               -
+- Nombre del archivo:  true.hs                                                -
+-	Hecho por:	Fabio 	Castro 		10-10132                      -
+-			Patricia Reinoso 	11-10851                      -   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.2.0                                                             -

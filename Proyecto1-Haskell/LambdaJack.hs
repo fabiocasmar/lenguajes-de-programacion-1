@@ -1,10 +1,10 @@
-{------------------------------------------------------------------------------- 
+{------------------------------------------------------------------------------
 - Nombre del archivo: LambdaJack.hs                                           -
-- Autor: Fabio Castro                                                         -
-- Correo: fabiocasmar@gmail.com                                               - 
+-	Hecho por:	Fabio 	Castro 		10-10132                      -
+-			Patricia Reinoso 	11-10851                      -   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.3.0                                                             -
+- version: v0.4.0                                                             -
 ------------------------------------------------------------------------------}
 
 -- module LambdaJack: módulo que contiene todo lo necesario para emular el juego LambdaJack
