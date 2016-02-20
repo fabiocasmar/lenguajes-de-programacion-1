@@ -1,17 +1,21 @@
-{-
-	hof.hs
-	Archivo que contiene diferentes implantaciones de la función filter de Haskell utilizando diferentes estrategias
-	Hecho por:	Richard Lares 		11-10508
-				Patricia Reinoso 	11-10851
--}
+{------------------------------------------------------------------------------
+- Nombre del archivo: hof.hs                                                  -
+-	Realizado por:	Fabio 	Castro 		10-10132
+-					Patricia Reinoso 	11-10851                                                                            -
+- Organización: Universidad Simón Bolívar                                     -
+- Proyecto: LambdaJack - Lenguajes de Programación I                          -
+- version: v0.3.0                                                             -
+------------------------------------------------------------------------------}
+
+--  1) Funciones de Orden Superior 
 
 -- Implantación de filter utilizando listas por comprensión
 filterC :: (a -> Bool) -> [a] -> [a]
 filterC p xs = [x | x<-xs, p x]
 
 -- Implantación de filter utilizando map (y otras funciones auxiliares)
-filterM :: (a -> Bool) -> [a] -> [a]
-filterM p xs = concat $ zipWith (\x y-> if y then [x] else []) xs (map p xs)
+filterC :: (a -> Bool) -> [a] -> [a]
+filterM  p xs = concatMap (\x -> if (p x) == True then [x] else []) xs
 
 -- Implantación de filter utilizando foldr
 filterF :: (a -> Bool) -> [a] -> [a]
