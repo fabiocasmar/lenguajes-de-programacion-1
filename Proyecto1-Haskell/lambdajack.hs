@@ -171,9 +171,9 @@ winnerYou g  = do
  una interrupción por teclado)
 -}
 gameloop :: GameState -> IO ()
-gameloop g = do
+gameloop (GS games lambdaWins name generator) = do
 
-	-- gen <- R.newStdGen
+	let gen = R.split generator
 	-- Se prepara un mazo nuevo, luego se baraja, y se genera una mano inicial 
 	-- con dos cartas para el jugador
 
@@ -181,17 +181,17 @@ gameloop g = do
 	let initial = maybeToHand (draw (fst firstcard) (snd firstcard))
 		where 
 			firstcard = do
-				let mazo = (shuffle ((generator)g) fullDeck)
+				let mazo = (shuffle (fst gen) fullDeck)
 				let sec = maybeToHand (draw mazo empty)
 				if (sec == (empty,empty)) 
 				then (mazo,empty)
 				else sec
 	
 	-- Se pregunta al jugador si desea otra carta o "se queda"
-	changeturn <- anotherCard ((name)g) (fst initial) (snd initial)
+	changeturn <- anotherCard name (fst initial) (snd initial)
 	
 	-- Se muestra por última vez la mano del jugador
-	playerMsg ((name)g) (snd changeturn)
+	playerMsg name (snd changeturn)
 
 	if busted (snd changeturn)
 	then putStrLn "Perdiste."	
@@ -204,7 +204,7 @@ gameloop g = do
 	lambdaMsg lambdahand
 
 	-- Actualiza gamestate y muestra mensaje correspondiente
-	newstate <- updateState lambdahand (snd changeturn) g
+	newstate <- updateState lambdahand (snd changeturn) (GS games lambdaWins name generator) 
 
 	-- Se muestra el estado actual del juego
 	currentState newstate
@@ -212,7 +212,7 @@ gameloop g = do
 	-- Se pregunta al jugador si desea continuar con el juego
 	x <- continuePlaying
 	if x 
-	then gameloop newstate 					
+	then gameloop (GS games lambdaWins name (snd gen)) 				
 	else putStrLn "\n\nFin del juego.\n"		
 
 	-- main es una secuencia de instrucciones que representan Lambda-Jack
