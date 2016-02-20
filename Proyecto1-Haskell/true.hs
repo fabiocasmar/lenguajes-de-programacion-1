@@ -36,14 +36,13 @@ find :: Environment -> String -> Maybe Bool
 find e k = foldl findAux Nothing e
 			where 
 				findAux (Just a) _ 	= Just a
-				findAux _ (str,bool) = if str == k
-								 	   then Just bool
-								 	   else Nothing
+				findAux _ (str,bool) = if str == k then Just bool else Nothing
 
 
 addOrReplace :: Environment -> String -> Bool -> Environment
-addOrReplace e k v = foldl (\x y -> if fst y == k then (k,v):x else y:x) [] e 
-
+addOrReplace e k v = if (find e k) == Nothing 
+		     then (k,v):e
+		     else foldl (\x y -> if fst y == k then (k,v):x else y:x) [] e 
 
 remove :: Environment -> String -> Environment
 remove e k = foldl (\x y -> if fst y == k then x else y:x) [] e
