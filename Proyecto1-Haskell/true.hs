@@ -1,18 +1,16 @@
 {------------------------------------------------------------------------------
 - Nombre del archivo:  true.hs                                                -
--	Hecho por:	Fabio 	Castro 		10-10132                      -
--			Patricia Reinoso 	11-10851                      -   
+- Realizado por:	Fabio 	Castro 		10-10132                      		  -
+-					Patricia Reinoso 	11-10851                      		  -   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.2.0                                                             -
 ------------------------------------------------------------------------------}
 
 --  2) Verificador de Tautologías 
-{-
- Tipo de datos recursivo monomórfico para representar expresiones de lógica 
- proposicional. Constructor para las constantes booleanas, variables, 
- negación, conjunción, disyunción e implicación.
--} 
+
+{- Tipo de dato recursivo monomórfico para representar expresiones de lógica 
+ proposicional -} 
 data Proposition = Constant Bool 
 				| Variable String
 				| Negation Proposition
@@ -21,17 +19,20 @@ data Proposition = Constant Bool
 				| Implication Proposition Proposition
 
 instance Show Proposition where
-		show (Constant a)		    = show a
-		show (Variable x)		    = show x
-		show (Negation y)      	    = " ¬ " ++ show y
-		show (Conjunction z w)  	= " ( " ++ show z ++ " ^ " ++ show w  ++ " ) "
-		show (Disjunction v u)  	= " ( " ++ show v ++ " v " ++ show u  ++ " ) "
-		show (Implication s t)    	= " ( " ++ show s ++ " => " ++ show t ++ " ) "
+		show (Constant a)		  = show a
+		show (Variable x)		  = show x
+		show (Negation y)      	  = " ¬ " ++ show y
+		show (Conjunction z w)    = " ( " ++ show z ++ " ^ " ++ show w  ++ " ) "
+		show (Disjunction v u)    = " ( " ++ show v ++ " v " ++ show u  ++ " ) "
+		show (Implication s t)    = " ( " ++ show s ++ " => " ++ show t ++ " ) "
 
--- Tipo para ambientes de evaluación de una proposición lógica
 type Environment = [(String,Bool)]
 
---		Ambiente de Evaluación
+
+{- La función 'find' recibe un ambien de evaluación y el nombre de una variable.
+ Busca la variable en un ambiente de evaluación y devuelve su valor 
+ (si la misma existe) 
+-}
 find :: Environment -> String -> Maybe Bool
 find e k = foldl findAux Nothing e
 			where 
@@ -39,16 +40,25 @@ find e k = foldl findAux Nothing e
 				findAux _ (str,bool) = if str == k then Just bool else Nothing
 
 
+{- La función 'addOrReplace' recibe un ambiente de evaluación, una variable y 
+ su respectivo valor. Añade la variable al ambiente, o modifica su valor si 
+ ésta ya existía en dicho ambiente
+-}
 addOrReplace :: Environment -> String -> Bool -> Environment
 addOrReplace e k v = if (find e k) == Nothing 
 		     then (k,v):e
 		     else foldl (\x y -> if fst y == k then (k,v):x else y:x) [] e 
 
+
+{-  La función 'remove' recibe un ambiente de evaluación y el nombre de una 
+ variable.  En caso de que la variable exista en dicho ambiente, la elimina. 
+ En caso contrario produce el mismo ambiente sin modificar.	
+-}
 remove :: Environment -> String -> Environment
 remove e k = foldl (\x y -> if fst y == k then x else y:x) [] e
 
-{-
- La función 'evalP' recorre una proposición apoyándose en un ambiente de 
+
+{- La función 'evalP' recorre una proposición apoyándose en un ambiente de 
  evaluación y calcula su valor de verdad
 -} 
 evalP :: Environment -> Proposition -> Maybe Bool
@@ -75,20 +85,9 @@ evalP e (Implication p q) = evalImpAux (evalP e p) (evalP e q)
 								evalImpAux (Just True) (Just False) = Just False
 								evalImpAux _ _				        = Just True
 
--- 		The truth shall set you free!
-isTautology :: Proposition -> Bool
-isTautology p = foldl (\x y -> f x (evalP y p)) True (aux(vars p))
-	where 
-		-- f evalua la conjunción entre Bool y un Just Bool
-		f a (Just b) = a && b
-		f _ _ 		 = error "No está definido"
-		-- aux es una función auxiliar que genera la lista con todos los 
-		-- ambientes de evaluación posibles para una lista de variables dada
-		aux = foldr (\x y -> (map ((x,True):) y) ++ (map ((x,False):) y)) [[]] 
 
-{-
- La función 'vars' extrae los nombres de variables de una proposición y los 
- retorna en una lista. Si una variable aparece más de una vez en una proposición, 
+{-  La función 'vars' extrae los nombres de variables de una proposición y los 
+ retorna en una lista.Si una variable aparece más de una vez en una proposición, 
  la función garantiza que no se repitan.								
 -}
 vars :: Proposition -> [String]
@@ -100,6 +99,19 @@ vars p = varsAux p []
 		varsAux (Conjunction p q) xs  = varsAux p (varsAux q xs)						
 		varsAux (Disjunction p q) xs  = varsAux p (varsAux q xs)
 		varsAux (Implication p q) xs  = varsAux p (varsAux q xs)
+
+
+-- La función 'isTautology' determina si una proposiciónes una tautología
+isTautology :: Proposition -> Bool
+isTautology p = foldl (\x y -> f x (evalP y p)) True (aux(vars p))
+	where 
+		-- f evalua la conjunción entre Bool y un Just Bool
+		f a (Just b) = a && b
+		f _ _ 		 = error "No está definido"
+		-- aux es una función auxiliar que genera la lista con todos los 
+		-- ambientes de evaluación posibles para una lista de variables dada
+		aux = foldr (\x y -> (map ((x,True):) y) ++ (map ((x,False):) y)) [[]] 
+
 
 
 {- PRUEBAS -}

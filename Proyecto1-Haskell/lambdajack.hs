@@ -1,7 +1,7 @@
 {------------------------------------------------------------------------------
 - Nombre del archivo: lambdajack.hs                                           -
--	Hecho por:	Fabio 	Castro 		10-10132                      -
--			Patricia Reinoso 	11-10851                      -   
+- Realizado por:	Fabio 	Castro 		10-10132                      		  -
+-					Patricia Reinoso 	11-10851                      		  -		   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.5.0                                                             -
@@ -14,19 +14,21 @@ import Cards
 import qualified System.Random as R
 import System.IO
 
+
+-- Tipo de datos para representar el estado de un juego
 data GameState = GS {games      :: Int,		-- Cantidad de partidas jugadas
 					 lambdaWins :: Int,		-- Cantidad de partidas ganadas por Lambda
 					 name       :: String,	-- Nombre del jugador
 					 generator  :: R.StdGen -- Generador de números al azar
 					} deriving (Show)
 
--- welcome: función que imprime el mensaje de bienvenida y lee el nombre del jugador
+
+-- La función 'welcome' da un mensaje de bienvenida al juego
 welcome :: IO String 
 welcome = return "Bienvenido a LamdaJack \nIndique su nombre"
 
 
-{-
- La función 'currentState' muestra cuántas partidas se han jugado, cuántas ha 
+{- La función 'currentState' muestra cuántas partidas se han jugado, cuántas ha 
  ganado Lambda y cuántas ha ganado el jugador
  g :: GameState = estado de juego
  Retorna: mensaje

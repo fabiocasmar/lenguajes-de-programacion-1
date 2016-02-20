@@ -1,13 +1,13 @@
 {------------------------------------------------------------------------------
 - Nombre del archivo: LambdaJack.hs                                           -
--	Hecho por:	Fabio 	Castro 		10-10132                      -
--			Patricia Reinoso 	11-10851                      -   
+- Realizado por:	Fabio 	Castro 		10-10132                      		  -
+-					Patricia Reinoso 	11-10851                      		  -   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
 - version: v0.4.0                                                             -
 ------------------------------------------------------------------------------}
 
--- module LambdaJack: módulo que contiene todo lo necesario para emular el juego LambdaJack
+-- module LambdaJack: módulo que contiene todo lo necesario para emular el juego 
 module LambdaJack (
 		Player (LambdaJack, You),
 		value,
@@ -23,9 +23,10 @@ module LambdaJack (
 import Cards 
 import System.Random
 
--- data Player: tipo de dato Player, que define si el jugador es Lambda o Tu
+-- Player: Tipo de datos para los dos jugadores de Lambda-Jack
 data    Player    = LambdaJack | You
 				    deriving (Show)
+
 
 -- La función 'value' recibe una mano y retorna el valor numérico de ella
 value :: Hand -> Int
@@ -54,7 +55,12 @@ busted :: Hand -> Bool
 busted h = value h > 21
 
 
--- winner: función que indica, dado dos jugadores, cual es el ganador
+{- La función 'winner' compara la mano del jugador con la de Lambda para 
+ determinar el ganador. 
+ h1 :: Hand = Mano de lambda
+ h2 :: Hand = Mano del jugador
+ Retorna: Jugador ganador.
+-}
 winner :: Hand -> Hand -> Player
 winner h1 h2 = if busted h1 && busted h2   then LambdaJack 		
 			   else if busted h2           then LambdaJack 				
@@ -67,16 +73,25 @@ fullDeck :: Hand
 fullDeck = H [Card x y | x<-map (Numeric)[2..10] ++ [Jack , Queen , King , Ace],
 				         y<-[Clubs , Diamonds , Spades , Hearts] ]
 
--- draw: Si puede, toma la primera carta del mazo y la coloca en la otra mano
+
+{- La función 'draw' retira la primera carta del mazo de cartas y la añade a la
+ mano del jugador, si es posible
+ Arg1 :: Hand = Mazo a repartir
+ Arg2 :: Hand = Mazo del jugador
+ Retorna = Tupla cuyo primer argumento es el mazo restante y el segundo la mano
+           del jugador
+-} 
 draw :: Hand -> Hand -> Maybe (Hand,Hand)
 draw (H [])     _    		= Nothing
 draw (H mrs)    (H mjs) 	= Just ((H (tail mrs)), (H ((head mrs):mjs)))
+
 
 -- maybeToHand: convierte un par Maybe (Hand,Hand) a (Hand,Hand) 
 maybeToHand:: Maybe (Hand,Hand) -> (Hand,Hand)
 maybeToHand t = maybe (empty, empty) id t
 
--- playLambda: función que emula la forma de jugar de Lambda, donde pide cartas hasta que tenga más de 16
+
+-- La función 'playLambda' recibe el mazo y retorna la mano de Lambda
 playLambda :: Hand -> Hand 
 playLambda m = playLambdaAux m empty
 	where 
@@ -92,9 +107,9 @@ playLambda m = playLambdaAux m empty
 
 
 
--- shuffle: función que recibe una semilla pseudo aleatoria para barajar el mazo,
---			 tomando una carta aleatoria del mazo y colocandola en el otro mazo, 
---			  hace uso de tuplas y fold
+-- shuffle:función que recibe una semilla pseudo aleatoria para barajar el mazo,
+--		   tomando una carta aleatoria del mazo y colocandola en el otro mazo, 
+
 shuffle :: StdGen -> Hand -> Hand
 shuffle rn mazo@(H ys) = (snd4 (foldr (\_ x -> (randomCard x)) (mazo,empty,(size mazo),rn) ys))
 	where 
