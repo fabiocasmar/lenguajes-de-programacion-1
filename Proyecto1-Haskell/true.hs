@@ -1,10 +1,10 @@
 {------------------------------------------------------------------------------
 - Nombre del archivo:  true.hs                                                -
-- Realizado por:	Fabio 	Castro 		10-10132                      		  -
--					Patricia Reinoso 	11-10851                      		  -   
+- Realizado por:    Fabio    Castro     10-10132                              -
+-                   Patricia Reinoso    11-10851                              -     
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.2.0                                                             -
+- version: v0.3.0                                                             -
 ------------------------------------------------------------------------------}
 
 --  2) Verificador de Tautologías 
