@@ -1,10 +1,10 @@
 {------------------------------------------------------------------------------
 - Nombre del archivo: Cards.hs                                                -
-- Realizado por:	Fabio 	Castro 		10-10132                   		      -
--					Patricia Reinoso 	11-10851                      		  -   
+- Realizado por:    Fabio    Castro     10-10132                              -
+-                   Patricia Reinoso    11-10851                              -   
 - Organización: Universidad Simón Bolívar                                     -
 - Proyecto: LambdaJack - Lenguajes de Programación I                          -
-- version: v0.3.0                                                             -
+- version: v0.4.0                                                             -
 ------------------------------------------------------------------------------}
 
 -- module Cards: modulo que posee lo necesario para emular las cartas del 
