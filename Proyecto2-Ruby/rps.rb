@@ -4,7 +4,7 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.1
+ 	Versión: v0.2
 =end 
 
 class Movement
@@ -94,32 +94,82 @@ class Uniform < Strategy
 		n = gen.rand(l.length-1)
 		l[n]
 	end
+
+	def reset
+	end
 end
 
 class Biased < Strategy
 
+	def initialize m
+		@m = m
+	end
+
+	def next
+
+	end
+
+	def reset
+	end
 end
 
 class Mirror < Strategy
+	attr_accessor :last
 
-	def initialize m 
-		@initial = m
+	def initialize  
+		@last = Uniform.new( [:Rock, :Scissors, :Paper]
+	end
+
+	def next
+		@last
+	end
+
+	def reset
+		@last = Uniform.new( [:Rock, :Scissors, :Paper]
 	end
 
 end
 
 class Smart < Strategy
 
+	attr_accessor :r,:p,:s
 
+	def initialize 
+		@r = 0
+		@p = 0
+		@s = 0
+	end
+
+	def next
+		if @r + @p + @s == 0
+			gen = Random.new(SEED)
+			n = gen.rand(@p + @r + @s − 1)
+			
+			if 0 <= n and n < p
+				Scissors.new()
+			elsif p <= n and n < @p + @r
+				Paper.new()
+			elsif @p + @r <= n and n < @p + @r + @s
+				Rock.new()
+			end
+		else
+			Uniform.new( [:Rock, :Scissors, :Paper]
+	end
+
+	def reset
+		@r = 0
+		@p = 0
+		@s = 0
+	end
 end
 
 class Match
+	
 	attr_accessor :s1, :s2,:ls1, :ls2, :p1, :p2, :rounds
+	
 	def initialize p
 		@s1 = p[:Deepthought] 
 		@s2 = p[:Multivac]
-		@ls1 = []
-		@ls2 = []
 		@p1 = 0
 		@p2 = 0
 		@rounds = 0
@@ -134,20 +184,30 @@ class Match
 			@p2 += res[1]
 			@rounds += 1
 		end
-
+		message
 	end
 
 	def upto n
 		while @p1 < n and @p2 < n do
-			rounds 1
+			m1 = @s1.next
+			m2 = @s2.next
+			res = m1.score m2
+			@p1 += res[0]
+			@p2 += res[1]
+			@rounds += 1
 		end
+		message
 	end
 
 	def restart
-		@ls1 = []
-		@ls2 = []
 		@p1 = 0
 		@p2 = 0
+		@s1.reset
+		@s2.reset
+	end
+
+	def message 
+		{:Multivac => @p2, :Deepthought => @p1, :Rounds => @rounds}
 	end
 
 end
