@@ -4,7 +4,7 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.2
+ 	Versión: v0.3
 =end 
 
 class Movement
@@ -26,11 +26,11 @@ class Rock < Movement
 	end
 
 	def scorePaper m 
-		[0,1]
+		[1,0]
 	end
 
 	def scoreScissors m 
-		[1,0]
+		[0,1]
 	end
 end
 
@@ -41,7 +41,7 @@ class Paper <  Movement
 	end
 
 	def scoreRock m
-		[1,0]	
+		[0,1]	
 	end
 
 	def scorePaper m 
@@ -49,7 +49,7 @@ class Paper <  Movement
 	end
 
 	def scoreScissors m 
-		[0,1]
+		[1,0]
 	end
 end
 
@@ -60,11 +60,11 @@ class Scissors < Movement
 	end
 
 	def scoreRock m
-		[0,1]
+		[1,0]
 	end
 
 	def scorePaper m 
-		[1,0]
+		[0,1]
 	end
 
 	def scoreScissors m 
@@ -84,6 +84,8 @@ class Strategy
 end
 
 class Uniform < Strategy
+
+	attr_accessor :l 
 
 	def initialize l
 		@l = l
@@ -106,7 +108,6 @@ class Biased < Strategy
 	end
 
 	def next
-
 	end
 
 	def reset
@@ -117,7 +118,7 @@ class Mirror < Strategy
 	attr_accessor :last
 
 	def initialize  
-		@last = Uniform.new( [:Rock, :Scissors, :Paper]
+		@last = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
 	end
 
 	def next
@@ -125,7 +126,7 @@ class Mirror < Strategy
 	end
 
 	def reset
-		@last = Uniform.new( [:Rock, :Scissors, :Paper]
+		@last = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
 	end
 
 end
@@ -141,9 +142,9 @@ class Smart < Strategy
 	end
 
 	def next
-		if @r + @p + @s == 0
+		if @r + @p + @s != 0
 			gen = Random.new(SEED)
-			n = gen.rand(@p + @r + @s − 1)
+			n = gen.rand(@p + @r + @s - 1)
 			
 			if 0 <= n and n < p
 				Scissors.new()
@@ -153,7 +154,8 @@ class Smart < Strategy
 				Rock.new()
 			end
 		else
-			Uniform.new( [:Rock, :Scissors, :Paper]
+			Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+		end
 	end
 
 	def reset
@@ -185,6 +187,7 @@ class Match
 			@rounds += 1
 		end
 		message
+		restart
 	end
 
 	def upto n
@@ -197,6 +200,7 @@ class Match
 			@rounds += 1
 		end
 		message
+		restart
 	end
 
 	def restart
@@ -206,6 +210,7 @@ class Match
 		@s2.reset
 	end
 
+	private
 	def message 
 		{:Multivac => @p2, :Deepthought => @p1, :Rounds => @rounds}
 	end
