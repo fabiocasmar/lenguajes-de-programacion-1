@@ -94,7 +94,7 @@ class Uniform < Strategy
 
 	def next
 		n = @gen.rand(l.length)
-		l[n]
+		eval(l[n].to_s).new
 	end
 
 	def reset
@@ -105,13 +105,25 @@ end
 class Biased < Strategy
 
 	def initialize m
-		@m = m
+		@k = m.keys
+		@v = m.values.inject(0, :+)
+		@gen = Random.new(SEED)
+		@x = []
+		@sum = 0
+		@l = m.each do |k,v| 
+			v.times {@x.push(k)}
+			@sum+=v
+		end
 	end
 
+
 	def next
+		n = @gen.rand(@x.length)
+		eval(@x[n].to_s).new
 	end
 
 	def reset
+		@gen = Random.new(SEED)
 	end
 end
 
@@ -119,7 +131,7 @@ class Mirror < Strategy
 	attr_accessor :last
 
 	def initialize  
-		@first = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next
 		@last = @first
 	end
 
@@ -138,7 +150,7 @@ class Smart < Strategy
 	attr_accessor :r,:p,:s
 
 	def initialize
-		@first = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next
 		@r = 0
 		@p = 0
 		@s = 0
@@ -189,7 +201,7 @@ class Match
 			@p2 += res[1]
 			@rounds += 1
 		end
-		message
+		puts message
 		restart
 	end
 
