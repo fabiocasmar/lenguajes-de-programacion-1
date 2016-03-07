@@ -89,15 +89,16 @@ class Uniform < Strategy
 
 	def initialize l
 		@l = l
+		@gen = Random.new(SEED)
 	end
 
 	def next
-		gen = Random.new(SEED)
-		n = gen.rand(l.length-1)
+		n = @gen.rand(l.length)
 		l[n]
 	end
 
 	def reset
+		@gen = Random.new(SEED)
 	end
 end
 
@@ -118,7 +119,8 @@ class Mirror < Strategy
 	attr_accessor :last
 
 	def initialize  
-		@last = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+		@first = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+		@last = @first
 	end
 
 	def next
@@ -126,7 +128,7 @@ class Mirror < Strategy
 	end
 
 	def reset
-		@last = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+		@last = @first
 	end
 
 end
@@ -135,7 +137,8 @@ class Smart < Strategy
 
 	attr_accessor :r,:p,:s
 
-	def initialize 
+	def initialize
+		@first = Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
 		@r = 0
 		@p = 0
 		@s = 0
@@ -154,7 +157,7 @@ class Smart < Strategy
 				Rock.new()
 			end
 		else
-			Uniform.new( [Rock.new, Scissors.new, Paper.new]).next
+			@first
 		end
 	end
 
