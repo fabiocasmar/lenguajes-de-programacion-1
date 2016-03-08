@@ -143,11 +143,14 @@ class Mirror < Strategy
 		@last = @first
 	end
 
+	def to_s
+		"#{self.class}. Primera jugada: #{@first.to_s}"
+	end
 end
 
 class Smart < Strategy
 
-	attr_accessor :r,:p,:s
+	attr_accessor :r,:p,:s, :first
 
 	def initialize
 		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next
@@ -177,6 +180,12 @@ class Smart < Strategy
 		@r = 0
 		@p = 0
 		@s = 0
+	end
+
+	def to_s
+		self.class
+		"#{self.class}. Rock: #{@r}, Paper: #{@p}, Scissors: #{@s}"
+
 	end
 end
 
