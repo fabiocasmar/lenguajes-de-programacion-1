@@ -10,9 +10,12 @@
 class Movement
 
 	def to_s
-		self.class
+		"#{self.class}"
 	end
 
+	def to_sym
+		to_s.to_sym
+	end
 end
 
 class Rock < Movement
@@ -76,7 +79,11 @@ class Strategy
 	SEED = 42
 
 	def to_s
-		self.class
+		"#{self.class}"
+	end
+
+	def next m 
+		raise "Esta clase no tiene metodo Next"
 	end
 
 	def reset
@@ -92,7 +99,7 @@ class Uniform < Strategy
 		@gen = Random.new(SEED)
 	end
 
-	def next
+	def next m
 		n = @gen.rand(l.length)
 		eval(l[n].to_s).new
 	end
@@ -117,7 +124,7 @@ class Biased < Strategy
 	end
 
 
-	def next
+	def next m
 		n = @gen.rand(@x.length)
 		eval(@x[n].to_s).new
 	end
@@ -131,12 +138,17 @@ class Mirror < Strategy
 	attr_accessor :last
 
 	def initialize  
-		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next
+		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next(0)
 		@last = @first
 	end
 
-	def next
-		@last
+	def next m
+		@last = m
+		if @last == nil
+			@first
+		else
+			@last
+		end
 	end
 
 	def reset
@@ -153,38 +165,39 @@ class Smart < Strategy
 	attr_accessor :r,:p,:s, :first
 
 	def initialize
-		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next
-		@r = 0
-		@p = 0
-		@s = 0
+		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next(0)
+		@last = {:Rock => 0, :Paper => 0, :Scissors => 0}
 	end
 
-	def next
-		if @r + @p + @s != 0
+	def next m
+
+		if @last[:Rock] + @last[:Paper] + @last[:Scissors] != 0
 			gen = Random.new(SEED)
-			n = gen.rand(@p + @r + @s - 1)
+			n = gen.rand(@last[:Rock] + @last[:Paper] + @last[:Scissors])
 			
-			if 0 <= n and n < p
-				Scissors.new()
-			elsif p <= n and n < @p + @r
-				Paper.new()
-			elsif @p + @r <= n and n < @p + @r + @s
-				Rock.new()
+			if 0 <= n and n < @last[:Paper]
+				x =Scissors.new()
+			elsif @last[:Paper] <= n and n < @last[:Paper] + @last[:Rock]
+				x = Paper.new()
+			elsif @last[:Paper] + @last[:Rock] <= n and n < @last[:Rock] + @last[:Paper] + @last[:Scissors]
+				x = Rock.new()
 			end
-		else
-			@first
+			@last[m.to_sym] += 1
+		else			
+			x = @first
 		end
+		
+		puts @last
+		x
 	end
 
 	def reset
-		@r = 0
-		@p = 0
-		@s = 0
+		@last = {:Rock => 0, :Paper => 0, :Scissors => 0}
 	end
 
 	def to_s
 		self.class
-		"#{self.class}. Rock: #{@r}, Paper: #{@p}, Scissors: #{@s}"
+		"#{self.class}. Rock: #{@last[:Rock]}, Paper: #{@last[:Paper]}, Scissors: #{@last[:Scissors]}"
 
 	end
 end
@@ -192,20 +205,28 @@ end
 class Match
 	
 	attr_accessor :s1, :s2,:ls1, :ls2, :p1, :p2, :rounds
-	
+	SEED = 42
+
 	def initialize p
 		@s1 = p[:Deepthought] 
 		@s2 = p[:Multivac]
 		@p1 = 0
 		@p2 = 0
 		@rounds = 0
+		#@gen = Random.new(SEED)
+		#@l = [:Rock, :Paper, :Scissors]
+		#n = @gen.rand(3)
+		#@initial1 = eval(@x[n].to_s).new
+		#n = @gen.rand(3)
+		#@initial2 = eval(@x[n].to_s).new
+		@m1 = nil
+		@m2 = nil
 	end
 
 	def rounds n
 		n.times do
-			m1 = @s1.next
-			m2 = @s2.next
-			res = m1.score m2
+			@m1, @m2 = @s1.next(@m2) , @s2.next(@m1)
+			res = @m1.score @m2
 			@p1 += res[0]
 			@p2 += res[1]
 			@rounds += 1
@@ -216,9 +237,8 @@ class Match
 
 	def upto n
 		while @p1 < n and @p2 < n do
-			m1 = @s1.next
-			m2 = @s2.next
-			res = m1.score m2
+			@m1, @m2 = @s1.next(@m2) , @s2.next(@m1)
+			res = @m1.score @m2 
 			@p1 += res[0]
 			@p2 += res[1]
 			@rounds += 1
@@ -232,6 +252,8 @@ class Match
 		@p2 = 0
 		@s1.reset
 		@s2.reset
+		@m1 = @initial1
+		@m2 = @initial2
 	end
 
 	private
