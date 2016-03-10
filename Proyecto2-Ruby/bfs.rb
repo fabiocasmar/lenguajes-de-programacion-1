@@ -31,7 +31,7 @@ class GraphNode
 		@value, @children = v, c
 	end
 	
-	def each
+	def each(b)
 	    @children.each do |c|
 	      b.call(c)
 	    end unless @children.nil?
@@ -79,7 +79,7 @@ module Bfs
 			action.call(n)
 			v.push(n)
 		end 
-		v
+		return v
 	end
 
 end
