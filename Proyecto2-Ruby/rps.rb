@@ -92,67 +92,71 @@ end
 
 class Uniform < Strategy
 
-	attr_accessor :l 
+	attr_accessor :gen
+	attr_reader :l
 
 	def initialize l
-		@l = l
-		@gen = Random.new(SEED)
+		self.l = l
+		self.gen = Random.new(SEED)
 	end
 
 	def next m
-		n = @gen.rand(l.length)
-		eval(l[n].to_s).new
+		n = @gen.rand(self.l.length)
+		eval(self.l[n].to_s).new
 	end
 
 	def reset
-		@gen = Random.new(SEED)
+		self.gen = Random.new(SEED)
 	end
 end
 
 class Biased < Strategy
 
+	attr_accessor :k, :v, :gen, :x, :sum, :l
+
 	def initialize m
-		@k = m.keys
-		@v = m.values.inject(0, :+)
-		@gen = Random.new(SEED)
-		@x = []
-		@sum = 0
-		@l = m.each do |k,v| 
-			v.times {@x.push(k)}
-			@sum+=v
+		self.k = m.keys
+		self.v = m.values.inject(0, :+)
+		self.gen = Random.new(SEED)
+		self.x = []
+		self.sum = 0
+		self.l = m.each do |k,v| 
+			v.times {self.x.push(k)}
+			self.sum+=v
 		end
 	end
 
 
 	def next m
-		n = @gen.rand(@x.length)
-		eval(@x[n].to_s).new
+		n = self.gen.rand(self.x.length)
+		eval(self.x[n].to_s).new
 	end
 
 	def reset
-		@gen = Random.new(SEED)
+		self.gen = Random.new(SEED)
 	end
 end
 
 class Mirror < Strategy
-	attr_accessor :last
+
+	attr_accessor :last, :first
 
 	def initialize  
-		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next(0)
-		@last = @first
+		self.first = Uniform.new( [:Rock, :Paper, :Scissors]).next(0)
+		self.last = self.first
 	end
 
 	def next m
-		@last = m
-		if @last == nil
-			@first
+		self.last = m
+		if self.last == nil
+			self.first
 		else
-			@last
+			self.last
 		end
 	end
 
 	def reset
-		@last = @first
+		self.last = self.first
 	end
 
 	def to_s
@@ -162,103 +166,96 @@ end
 
 class Smart < Strategy
 
-	attr_accessor :r,:p,:s, :first
+	attr_accessor :first, :last
 
 	def initialize
-		@first = Uniform.new( [:Rock, :Paper, :Scissors]).next(0)
-		@last = {:Rock => 0, :Paper => 0, :Scissors => 0}
+		self.first = Uniform.new( [:Rock, :Paper, :Scissors]).next(0)
+		self.last = {:Rock => 0, :Paper => 0, :Scissors => 0}
 	end
 
 	def next m
 
-		if @last[:Rock] + @last[:Paper] + @last[:Scissors] != 0
+		if m != nil
+			self.last[m.to_sym] += 1
 			gen = Random.new(SEED)
-			n = gen.rand(@last[:Rock] + @last[:Paper] + @last[:Scissors])
+			n = gen.rand(self.last[:Rock] + self.last[:Paper] + self.last[:Scissors])
 			
-			if 0 <= n and n < @last[:Paper]
+			if 0 <= n and n < self.last[:Paper]
 				x =Scissors.new()
-			elsif @last[:Paper] <= n and n < @last[:Paper] + @last[:Rock]
+			elsif self.last[:Paper] <= n and n < self.last[:Paper] + self.last[:Rock]
 				x = Paper.new()
-			elsif @last[:Paper] + @last[:Rock] <= n and n < @last[:Rock] + @last[:Paper] + @last[:Scissors]
+			elsif self.last[:Paper] + self.last[:Rock] <= n and n < self.last[:Rock] + self.last[:Paper] + self.last[:Scissors]
 				x = Rock.new()
 			end
-			@last[m.to_sym] += 1
+			puts self.last
+			x
 		else			
-			x = @first
+			puts self.last
+			self.first
 		end
 		
-		puts @last
-		x
 	end
 
 	def reset
-		@last = {:Rock => 0, :Paper => 0, :Scissors => 0}
+		self.last = {:Rock => 0, :Paper => 0, :Scissors => 0}
 	end
 
 	def to_s
-		self.class
-		"#{self.class}. Rock: #{@last[:Rock]}, Paper: #{@last[:Paper]}, Scissors: #{@last[:Scissors]}"
+		"#{self.class}. Rock: #{self.last[:Rock]}, Paper: #{self.last[:Paper]}, Scissors: #{self.last[:Scissors]}"
 
 	end
 end
 
 class Match
 	
-	attr_accessor :s1, :s2,:ls1, :ls2, :p1, :p2, :rounds
-	SEED = 42
+	attr_accessor :strategy1, :strategy2, :points1, :points2, :round, :move1, :move2
 
 	def initialize p
-		@s1 = p[:Deepthought] 
-		@s2 = p[:Multivac]
-		@p1 = 0
-		@p2 = 0
-		@rounds = 0
-		#@gen = Random.new(SEED)
-		#@l = [:Rock, :Paper, :Scissors]
-		#n = @gen.rand(3)
-		#@initial1 = eval(@x[n].to_s).new
-		#n = @gen.rand(3)
-		#@initial2 = eval(@x[n].to_s).new
-		@m1 = nil
-		@m2 = nil
+		self.strategy1 = p[:Deepthought] 
+		self.strategy2 = p[:Multivac]
+		self.points1   = 0
+		self.points2   = 0
+		self.round    = 0
+		self.move1 = nil
+		self.move2 = nil
 	end
 
 	def rounds n
 		n.times do
-			@m1, @m2 = @s1.next(@m2) , @s2.next(@m1)
-			res = @m1.score @m2
-			@p1 += res[0]
-			@p2 += res[1]
-			@rounds += 1
+			self.move1, self.move2 = self.strategy1.next(self.move2) , self.strategy2.next(self.move1)
+			res = self.move1.score self.move2
+			self.points1 += res[0]
+			self.points2 += res[1]
+			self.round += 1
 		end
 		puts message
-		restart
+		self.restart
 	end
 
 	def upto n
-		while @p1 < n and @p2 < n do
-			@m1, @m2 = @s1.next(@m2) , @s2.next(@m1)
-			res = @m1.score @m2 
-			@p1 += res[0]
-			@p2 += res[1]
-			@rounds += 1
+		while self.points1 < n and self.points2 < n do
+			self.move1, self.move2 = self.strategy1.next(self.move2) , self.strategy2.next(self.move1)
+			res = self.move1.score self.move2 
+			self.points1 += res[0]
+			self.points2 += res[1]
+			self.round += 1
 		end
-		message
-		restart
+		puts message
+		self.restart
 	end
 
 	def restart
-		@p1 = 0
-		@p2 = 0
-		@s1.reset
-		@s2.reset
-		@m1 = @initial1
-		@m2 = @initial2
+		self.points1 = 0
+		self.points2 = 0
+		self.strategy1.reset
+		self.strategy2.reset
+		self.move1 = nil
+		self.move2 = nil
 	end
 
 	private
 	def message 
-		{:Multivac => @p2, :Deepthought => @p1, :Rounds => @rounds}
+		{:Multivac => self.points2, :Deepthought => self.points1, :Rounds => self.round}
 	end
 
 end
