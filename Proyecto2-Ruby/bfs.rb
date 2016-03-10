@@ -8,16 +8,18 @@
 =end 
 
 class BinTree
+include Bfs
 	attr_accessor :value,  # Valor almacenado en el nodo
 				  :left,   # BinTree izquierdo
 				  :right   # BinTree derecho
 	
 	def initialize(v,l,r)
-		# Su c´odigo aqu´ı
+		@value, @left, @right = v, l, r
 	end
 	
 	def each(b)
-		# Su c´odigo aqu´ı
+	    b.call(@left)  unless @left.nil?
+	    b.call(@right) unless @right.nil?
 	end
 end
 
@@ -26,30 +28,70 @@ class GraphNode
 				  :children # Arreglo de sucesores GraphNode
 
 	def initialize(v,c)
-		# Su c´odigo aqu´ı
+		@value, @children = v, c
 	end
 	
-	def each(b)
-		# Su c´odigo aqu´ı
+	def each
+	    @children.each do |c|
+	      b.call(c)
+	    end unless @children.nil?
 	end
 end
 
+module Bfs
+	def bfs(start)
+		q 			 = []
+		q.push(start)
+		visit 		 = []
+		pushear_nodo = lambda { |x| q.push(x) } 
+		while(q.size != 0)
+			n = q.shift
+			if !visit.include? n
+				n.each pushear_nodo 
+				yield n 
+				visit.push(n)
+			end
+		end
+	end
 
-def find(start, predicate)
+	def find(start, predicate)
+    	start.bfs(start) { |n| return n if predicate.call(n) }
+    end
+
+    def path(start, predicate)
+    	f = { start => [] }
+    	start.bfs(start) do |n|
+			if predicate.call(n)
+				pa = []
+				while n != [] do
+					pa.unshift(n)
+					n = f[n]
+				end
+				return pa
+			end
+        	n.each lambda { |h| f[h] = n }   
+        end		
+	end
+
+	def walk (start, action)
+		v = []
+		start.bfs(start) do |n| 
+			action.call(n)
+			v.push(n)
+		end 
+		v
+	end
+
 end
 
-def path(start, predicate)
-end
 
-def walk (start, action)
-end
 
 def LCR
 	attr_reader :value
 	
-	def initialize(?) # Indique los argumentos
-		# Su c´odigo aqu´ı
-	end
+	#def initialize(?) # Indique los argumentos
+	#	# Su c´odigo aqu´ı
+	#end
 	
 	def each(p)
 		# Su c´odigo aqu´ı
