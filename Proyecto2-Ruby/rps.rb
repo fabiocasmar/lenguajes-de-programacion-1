@@ -106,7 +106,7 @@ class Strategy
 
 	# Método que genera el próximo Movement.
 	def next m 
-		raise "Esta clase no tiene metodo Next"
+		raise "Esta clase no tiene metodo Next."
 	end
 
 	# Método para llevar la estrategia a su estado inicial.
@@ -120,9 +120,9 @@ class Uniform < Strategy
 
 	attr_accessor :list, :gen
 
-	# Constructor de la subclase Uniform
+	# Constructor de la subclase Uniform. Recibe una lista de movimientos posibles.
 	def initialize list
-		self.list = list
+		self.list = list.uniq
 		self.gen = Random.new(SEED)
 	end
 
@@ -137,6 +137,11 @@ class Uniform < Strategy
 	def reset
 		self.gen = Random.new(SEED)
 	end
+
+	# Método que retorna la estrategia como un string.
+	def to_s
+		"#{self.class}. Posibles valores: #{self.list}"
+	end
 end
 
 # Subclase de Strategy. 
@@ -144,7 +149,8 @@ class Biased < Strategy
 
 	attr_accessor :k, :v, :gen, :x, :sum, :l
 
-	# Constructor de la subclase Biased
+	# Constructor de la subclase Biased. Recibe un mapa de movimientos posibles 
+	# y sus probabilidades asociadas.
 	def initialize m
 		self.k = m.keys
 		self.v = m.values.inject(0, :+)
@@ -186,7 +192,7 @@ class Mirror < Strategy
 	# Método que genera el próximo Movement. Retorna la última jugada del contrincante.
 	def next m
 		self.last = m
-		if self.last == nil
+		if self.last.nil?
 			self.first
 		else
 			self.last
@@ -219,7 +225,7 @@ class Smart < Strategy
 	# jugadas hechas por el oponente.
 	def next m
 
-		if m != nil
+		if not m.nil?
 			self.last[m.to_sym] += 1
 			gen = Random.new(SEED)
 			n = gen.rand(self.last[:Rock] + self.last[:Paper] + self.last[:Scissors])
@@ -257,10 +263,23 @@ class Match
 	
 	attr_accessor :strategy1, :strategy2, :points1, :points2, :round, :move1, :move2
 
-	# Constructor de la clase Match.
+	# Constructor de la clase Match. Recibe un mapa con los nombres y 
+	# estrategias de los jugadores 
 	def initialize p
+
+		if p.length!= 2
+			raise "Un Match solo puede ser creado con 2 jugadores."
+		end
+	 	
 		self.strategy1 = p[:Deepthought] 
 		self.strategy2 = p[:Multivac]
+
+		if self.strategy1.nil? or self.strategy2.nil?
+			raise "Los nombres de los jugadores deben ser ':Deepthought' y ':Multivac'"
+		elsif (not self.strategy1.is_a?Strategy) or (not self.strategy2.is_a?Strategy)
+			raise "Los valores del mapa deben ser instancias de la clase Strategy"
+		end
+
 		self.points1   = 0
 		self.points2   = 0
 		self.round    = 0
