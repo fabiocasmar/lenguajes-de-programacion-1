@@ -4,10 +4,8 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.0.0 
+ 	Versión: v0.3.0 
 =end 
-
-require 'set'
 
 module Bfs
 
@@ -27,10 +25,12 @@ module Bfs
   end
 
   def find(start, predicate)
-      start.bfs(start) { |n| return n if predicate.call(n) }
+    raise "start debe tener módulo bfs." if !start.respon_to?bfs
+	start.bfs(start) { |n| return n if predicate.call(n) } 
   end
 
   def path(start, predicate)
+  	raise "start debe tener módulo bfs." if !start.respon_to?bfs
     f = { start => nil }
     start.bfs(start) do |n|
       f.keys.each do |x|
@@ -52,6 +52,7 @@ module Bfs
   end
 
   def walk (start, action)
+  	raise "start debe tener módulo bfs." if !start.respon_to?bfs
     v = []
     start.bfs(start) do |n| 
       action.call(n)
@@ -65,17 +66,17 @@ end
 class BinTree
 include Bfs
   attr_accessor :value,  # Valor almacenado en el nodo
-  	            :left,   # BinTree izquierdo
-  	            :right   # BinTree derecho
-	
-	def initialize(v,l,r)
-		@value, @left, @right = v, l, r
-	end
-	
-	def each(b)
-	  b.call(@left)  unless @left.nil?
-	  b.call(@right) unless @right.nil?
-	end
+                :left,   # BinTree izquierdo
+                :right   # BinTree derecho
+  
+  def initialize(v,l,r)
+  	@value, @left, @right = v, l, r
+  end
+  
+  def each(b)
+    b.call(@left)  unless @left.nil?
+    b.call(@right) unless @right.nil?
+  end
 end
 
 class GraphNode
@@ -100,10 +101,16 @@ include Bfs
   	left.map!  { |c| c.to_sym }
     right.map! { |c| c.to_sym }
     @value = {
-      "side" => side.to_sym,
+      "side"  => side.to_sym,
       "left"  => left,
       "right" => right
     }
+
+    left.each { |x| raise "Se introdujo una etiqueta erronea en el lado izquierdo." unless ((x ==:lobo)or(x ==:cabra)or(x ==:repollo)) }
+    right.each { |x| raise "Se introdujo una etiqueta erronea en el lado derecho." unless ((x ==:lobo)or(x ==:cabra)or(x ==:repollo)) }
+    raise "Se introdujo una etiqueta de lado errónea." unless ((side==:left)or(side==:right))
+    raise "Se ha introducido una cantidad de elementos incorrecta" unless (left.length + right.length == 3)
+    raise "Ha introducido un elemento dos veces" unless ((left+right).uniq!)is_nil?
   end        
 
   def each(p)
@@ -146,9 +153,9 @@ include Bfs
   end
 
   def ==(comp)
-    (@value["side"]           == comp.value["side"]) and
-    (Set.new(@value["right"]) == Set.new(comp.value["right"])) and
-    (Set.new(@value["left"])  == Set.new(comp.value["left"]))
+    ((@value["side"]           == comp.value["side"])) and
+    ((@value["right"]).sort()  == (comp.value["right"]).sort()) and
+    ((@value["left"]).sort()   == (comp.value["left"]).sort())
   end
   
   def solve
