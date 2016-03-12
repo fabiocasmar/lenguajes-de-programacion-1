@@ -153,7 +153,7 @@ class Uniform < Strategy
 
 	# Método que retorna la estrategia como un string.
 	def to_s
-		"#{self.class}. Posibles valores: #{self.list}."
+		"#{self.class}. Valores posibles: #{self.list}."
 	end
 end
 
