@@ -86,7 +86,7 @@ end
 
 
 =begin
-	La clase BinTre, permite representar arboles binaros por un nodo.
+	La clase BinTree, permite representar árboles binaros por un nodo.
 =end
 class BinTree
 include Bfs
@@ -101,7 +101,7 @@ include Bfs
 
 =begin
 	La función initialize de BinTree permite crear un
-	arbol binario e inicializarlo.
+	árbol binario e inicializarlo.
 =end
     def initialize(v,l,r)
         self.value, self.left, self.right = v, l, r
@@ -247,7 +247,7 @@ include Bfs
 
 =begin
 	La función solve de LCR hace uso de la función path del módulo Bfs 
-	para resolver el grafo implicito y devolver la serie de estados 
+	para resolver el grafo implícito y devolver la serie de estados 
 	por los que pasar para llegar al estado objetivo.
 =end
     def solve
