@@ -1,21 +1,21 @@
 =begin
-	Nombre del archivo:  bfs.hs                                                
- 	Realizado por:    Fabio    Castro     10-10132                              
-                   	  Patricia Reinoso    11-10851                                   
- 	Organización: Universidad Simón Bolívar                                     
- 	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.9.0 
+    Nombre del archivo:  bfs.hs                                                
+    Realizado por:    Fabio    Castro     10-10132                              
+                  	  Patricia Reinoso    11-10851                                   
+    Organización: Universidad Simón Bolívar                                     
+    Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
+    Versión: v0.9.0 
 =end 
 
 
 =begin
-	El módulo Bfs contiene todas las funciones para la ejecución del bfs.
+    El módulo Bfs contiene todas las funciones para la ejecución del bfs.
 =end
 module Bfs
 
 =begin
-	La función bfs realiza la ejecución del bfs de manera genérica, 
-	haciendo uso de la función each de la clase, del objeto.
+    La función bfs realiza la ejecución del bfs de manera genérica, 
+    haciendo uso de la función each de la clase, del objeto.
 =end
     protected
     def bfs(start)
@@ -34,8 +34,8 @@ module Bfs
     end
 
 =begin
-	La función find recibe un nodo desde el cual se ejecutará bfs y un predicado. 
-	Se devolverá el primer nodo que cumpla con el predicado.
+    La función find recibe un nodo desde el cual se ejecutará bfs y un predicado. 
+    Se devolverá el primer nodo que cumpla con el predicado.
 =end
     public
     def find(start, predicate)
@@ -44,8 +44,8 @@ module Bfs
     end
 
 =begin
-	La función path recibe un nodo desde el cual se ejecutará bfs y un predicado. 
-	Se devolverá el camino desde el nodo start, hasta el primer nodo que cumpla el predicado.
+    La función path recibe un nodo desde el cual se ejecutará bfs y un predicado. 
+    Se devolverá el camino desde el nodo start, hasta el primer nodo que cumpla el predicado.
 =end
     public
     def path(start, predicate)
@@ -71,9 +71,9 @@ module Bfs
     end
 
 =begin
-	La función walk recibe un nodo desde el cual se ejecutará bfs y 
-	un action que se ejecutará sobre  cada nodo. Se devolverá una lista
-	con todos los nodos visitado.
+    La función walk recibe un nodo desde el cual se ejecutará bfs y 
+    un action que se ejecutará sobre  cada nodo. Se devolverá una lista
+    con todos los nodos visitado.
 =end
     public
     def walk (start, action)
@@ -90,7 +90,7 @@ end
 
 
 =begin
-	La clase BinTree, permite representar árboles binaros por un nodo.
+    La clase BinTree, permite representar árboles binaros por un nodo.
 =end
 class BinTree
 include Bfs
@@ -104,8 +104,8 @@ include Bfs
     attr_accessor :right   
 
 =begin
-	La función initialize de BinTree permite crear un
-	árbol binario e inicializarlo.
+    La función initialize de BinTree permite crear un
+    árbol binario e inicializarlo.
 =end
     def initialize(v,l,r)
         raise "Solo se puede tener hijos de tipo BinTree o nil" unless (l.is_a? BinTree) or (l.nil?)
@@ -114,9 +114,9 @@ include Bfs
     end
 
 =begin
-	La función each de BinTree, recibe un bloque que 
-	sera utilizado para iterar sobre los
-	hijos del nodo, cuando esten definidos.
+    La función each de BinTree, recibe un bloque que 
+    sera utilizado para iterar sobre los
+    hijos del nodo, cuando esten definidos.
 =end
     def each(b)
         b.call(self.left)  unless self.left.nil?
@@ -126,7 +126,7 @@ end
 
 
 =begin
-	La clase GraphNode, permite representar Grafos por el nodo.
+    La clase GraphNode, permite representar Grafos por el nodo.
 =end
 class GraphNode
 include Bfs
@@ -139,8 +139,8 @@ include Bfs
    
 
 =begin
-	La función initialize de GraphNode permite crear un
-	Grafo representado por un nodo, e inicializarlo.
+    La función initialize de GraphNode permite crear un
+    Grafo representado por un nodo, e inicializarlo.
 =end
     def initialize(v,c)       
         raise "Solo se puede inicializar la lista de hijos como vacia o nil." unless (c.is_a? Array) or (c.nil?)
@@ -149,9 +149,9 @@ include Bfs
     end
 
 =begin
-	La función each de GaphNode, recibe un bloque que 
-	sera utilizado para iterar sobre los
-	hijos del nodo, cuando esten definidos.
+    La función each de GaphNode, recibe un bloque que 
+    sera utilizado para iterar sobre los
+    hijos del nodo, cuando esten definidos.
 =end
     def each(b)
         (self.children.each { |c| b.call(c) }) unless self.children.nil? or self.children.empty?
@@ -159,9 +159,9 @@ include Bfs
 end
 
 =begin
-	La clase LCR tiene todo lo necesario para representar grafo 
-	implícitos de expansión, los nodos representan los estado, 
-	se hace uso de la clase bfs.
+    La clase LCR tiene todo lo necesario para representar grafo 
+    implícitos de expansión, los nodos representan los estado, 
+    se hace uso de la clase bfs.
 =end
 class LCR
 include Bfs
@@ -170,9 +170,9 @@ include Bfs
     attr_accessor :value
 
 =begin
-	La función fun_ver verifica si un nodo tiene una configuración
-	válida, por ejemplo, un estado inválido es cuando están la cabra 
-	y el lobo del mismo lado, y el bote se encuentra del otro lado.
+    La función fun_ver verifica si un nodo tiene una configuración
+    válida, por ejemplo, un estado inválido es cuando están la cabra 
+    y el lobo del mismo lado, y el bote se encuentra del otro lado.
 =end
     protected
     def fun_ver (s)
@@ -190,8 +190,8 @@ include Bfs
     end 
 
 =begin
-	La función initialize de LCR permite crear un
-	Grafo implícito, e inicializarlo.
+    La función initialize de LCR permite crear un
+    Grafo implícito, e inicializarlo.
 =end
     public
     def initialize(side,left,right)
@@ -212,9 +212,9 @@ include Bfs
     end 
 
 =begin
-	La función each de LCR, recibe un procedimiento que 
-	sera utilizado para iterar sobre los hijos del estado,
-	que serán generado al momento de requerirlos.
+    La función each de LCR, recibe un procedimiento que 
+    sera utilizado para iterar sobre los hijos del estado,
+    que serán generado al momento de requerirlos.
 =end
     public
     def each(p)
@@ -243,8 +243,8 @@ include Bfs
     end
 
 =begin
-	La función == de LCR, permite saber si dos
-	 nodos LCR son iguales.
+    La función == de LCR, permite saber si dos
+     nodos LCR son iguales.
 =end
     protected
     def ==(comp)
@@ -258,9 +258,9 @@ include Bfs
     end
 
 =begin
-	La función solve de LCR hace uso de la función path del módulo Bfs 
-	para resolver el grafo implícito y devolver la serie de estados 
-	por los que pasar para llegar al estado objetivo.
+    La función solve de LCR hace uso de la función path del módulo Bfs 
+    para resolver el grafo implícito y devolver la serie de estados 
+    por los que pasar para llegar al estado objetivo.
 =end
     public
     def solve
