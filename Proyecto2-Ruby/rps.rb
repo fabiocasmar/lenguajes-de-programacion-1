@@ -6,7 +6,7 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.3
+ 	Versión: v0.9
 =end 
 
 # Clase que representa la noción de movimiento ejecutado por un jugador
@@ -120,7 +120,10 @@ end
 # uniforme sobre los movimientos posibles.
 class Uniform < Strategy
 
-	attr_accessor :list, :gen
+	# Lista de los movimientos posibles de la estrategia.
+	attr_accessor :list
+	# Generador de valores aleatorios.
+	attr_accessor :gen
 
 	# Constructor de la subclase Uniform. Recibe una lista de movimientos posibles.
 	def initialize list
@@ -157,7 +160,14 @@ end
 # Subclase de Strategy. 
 class Biased < Strategy
 
-	attr_accessor :gen, :list, :sum, :l, :map
+	# Generador valores aleatorios.
+	attr_accessor :gen
+	# Lista generada según las probilidades de cada movimiento.
+	attr_accessor :list
+	# Sumatoria de las probabilidades asociadas a cada movimiento.
+	attr_accessor :sum
+	# Mapa que contiene los valores iniciales.
+	attr_accessor :map
 
 	# Constructor de la subclase Biased. Recibe un mapa de movimientos posibles 
 	# y sus probabilidades asociadas.
@@ -204,7 +214,10 @@ end
 # ronda anterior.
 class Mirror < Strategy
 
-	attr_accessor :last, :first
+	# Movimiento generado de manera uniforme para cada jugada.
+	attr_accessor :last
+	# Movimiento que almacena la última jugada del oponente.
+	attr_accessor :first
 
 	# Constructor de la subclase Mirror. Define el primer movimiento.
 	def initialize  
@@ -236,7 +249,10 @@ end
 # Subclase de Strategy. Analiza las jugadas anteriores de su contrincante.
 class Smart < Strategy
 
-	attr_accessor :first, :last
+	# Movimiento generado de manera uniforme para cada jugada.
+	attr_accessor :first
+	# Mapa que almacena la cantidad de veces que el oponente a utilizado cada movimiento.
+	attr_accessor :last
 
 	# Constructor de la subclase Smart. Define el primer movimiento.
 	def initialize
@@ -283,10 +299,23 @@ end
 # Clase que permite representar el estado del juego entre 2 jugadores.
 class Match
 	
-	attr_accessor :strategy1, :strategy2, :points1, :points2, :round, :move1, :move2
+	# Estrategia utilizada por el jugador :Deeptought.
+	attr_accessor :strategy1 
+	# Estrategia utilizada por el jugador :Multivac.
+	attr_accessor :strategy2 
+	# Puntos acumulados por el jugador :Deeptought.
+	attr_accessor :points1 
+	# Puntos acumulados por el jugador :Multivac.
+	attr_accessor :points2 
+	# Número de rondas jugadas hasta el momento.
+	attr_accessor :round
+	# Movimiento utilizado por el jugador :Deeptought.
+	attr_accessor :move1 
+	# Movimiento utilizado por el jugador :Multivac.
+	attr_accessor :move2
 
 	# Constructor de la clase Match. Recibe un mapa con los nombres y 
-	# estrategias de los jugadores 
+	# estrategias de los jugadores. 
 	def initialize p
 
 		raise "Un Match solo puede ser creado con 2 jugadores." unless p.length == 2
