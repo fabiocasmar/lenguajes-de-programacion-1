@@ -4,7 +4,7 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.6.0 
+ 	Versión: v0.7.0 
 =end 
 
 
@@ -94,7 +94,7 @@ include Bfs
     attr_accessor :value
   
 # BinTree izquierdo
-    attr_accessor  :left
+    attr_accessor :left
 
 # BinTree derecho    
     attr_accessor :right   
@@ -104,7 +104,7 @@ include Bfs
 	arbol binario e inicializarlo.
 =end
     def initialize(v,l,r)
-        @value, @left, @right = v, l, r
+        self.value, self.left, self.right = v, l, r
     end
 
 =begin
@@ -113,8 +113,8 @@ include Bfs
 	hijos del nodo, cuando esten definidos.
 =end
     def each(b)
-        b.call(@left)  unless @left.nil?
-        b.call(@right) unless @right.nil?
+        b.call(self.left)  unless self.left.nil?
+        b.call(self.right) unless self.right.nil?
     end
 end
 
@@ -137,7 +137,7 @@ include Bfs
 	Grafo representado por un nodo, e inicializarlo.
 =end
     def initialize(v,c)
-        @value, @children = v, c
+        self.value, self.children = v, c
     end
 
 =begin
@@ -146,7 +146,7 @@ include Bfs
 	hijos del nodo, cuando esten definidos.
 =end
     def each(b)
-        @children.each { |c| b.call(c) } unless @children.nil?
+        self.children.each { |c| b.call(c) } unless self.children.nil?
     end
 end
 
@@ -159,7 +159,7 @@ class LCR
 include Bfs
 
 # En value se encuentra el estado actual, de que lado se encueentra que.
-    attr_reader :value
+    attr_accessor :value
 
 =begin
 	La función fun_ver verifica si un nodo tiene una configuración
@@ -188,7 +188,7 @@ include Bfs
         left.map!  { |c| c.to_sym }
         right.map! { |c| c.to_sym }
         side = side.to_sym
-        @value = {
+        self.value = {
             "side"  => side,
             "left"  => left,
             "right" => right
@@ -207,7 +207,7 @@ include Bfs
 	que serán generado al momento de requerirlos.
 =end
     def each(p)
-        if @value["side"] == :left
+        if self.value["side"] == :left
             o = "left"
             d = "right"
         else
@@ -215,10 +215,10 @@ include Bfs
             d = "left"
         end
     
-        @value[o].each do |x|
-            newo = Array.new(@value[o])
+        self.value[o].each do |x|
+            newo = Array.new(self.value[o])
             newo.delete(x)
-            newd = (Array.new(@value[d])).push(x)
+            newd = (Array.new(self.value[d])).push(x)
             if o == "right"
                 ns = LCR.new(d,newd,newo)
            	else 
@@ -227,7 +227,7 @@ include Bfs
             p.call(ns) if fun_ver(ns)
         end
     
-        ns = LCR.new(d,@value["left"],@value["right"])
+        ns = LCR.new(d,self.value["left"],self.value["right"])
         p.call(ns) if fun_ver(ns)
     end
 
@@ -237,9 +237,9 @@ include Bfs
 =end
     def ==(comp)
         if comp.is_a?LCR
-            ((@value["side"]           == comp.value["side"])) and
-            ((@value["right"]).sort()  == (comp.value["right"]).sort()) and
-            ((@value["left"]).sort()   == (comp.value["left"]).sort())
+            ((self.value["side"]           == comp.value["side"])) and
+            ((self.value["right"]).sort()  == (comp.value["right"]).sort()) and
+            ((self.value["left"]).sort()   == (comp.value["left"]).sort())
         else
             false
         end
