@@ -108,6 +108,8 @@ include Bfs
 	árbol binario e inicializarlo.
 =end
     def initialize(v,l,r)
+        raise "Solo se puede tener hijos de tipo BinTree o nil" unless (l.is_a? BinTree) or (l.nil?)
+        raise "Solo se puede tener hijos de tipo BinTree o nil" unless (r.is_a? BinTree) or (r.nil?)
         self.value, self.left, self.right = v, l, r
     end
 
@@ -140,7 +142,9 @@ include Bfs
 	La función initialize de GraphNode permite crear un
 	Grafo representado por un nodo, e inicializarlo.
 =end
-    def initialize(v,c)
+    def initialize(v,c)       
+        raise "Solo se puede inicializar la lista de hijos como vacia o nil." unless (c.is_a? Array) or (c.nil?)
+        c.each { |x| raise "Solo se puede tener hijos de tipo GraphNode" unless (x.is_a? GraphNode ) } unless (c.nil?) 
         self.value, self.children = v, c
     end
 
@@ -150,7 +154,7 @@ include Bfs
 	hijos del nodo, cuando esten definidos.
 =end
     def each(b)
-        self.children.each { |c| b.call(c) } unless self.children.nil?
+        (self.children.each { |c| b.call(c) }) unless self.children.nil? or self.children.empty?
     end
 end
 
