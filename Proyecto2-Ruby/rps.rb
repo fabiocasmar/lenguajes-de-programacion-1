@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 =begin
 	Nombre del archivo:  rps.hs                                                
  	Realizado por:    Fabio    Castro     10-10132                              
@@ -99,18 +101,18 @@ class Strategy
 	# Constante que representa la semilla para generar los valores al azar.
 	SEED = 42
 
-	# Método para retornar la estrategia como un string.
-	def to_s
-		"#{self.class}"
-	end
-
 	# Método que genera el próximo Movement.
 	def next m 
-		raise "Esta clase no tiene metodo Next."
+		raise "Esta clase no tiene método Next."
 	end
 
 	# Método para llevar la estrategia a su estado inicial.
 	def reset
+	end
+
+	# Método para retornar la estrategia como un string.
+	def to_s
+		"#{self.class}"
 	end
 end
 
@@ -122,13 +124,22 @@ class Uniform < Strategy
 
 	# Constructor de la subclase Uniform. Recibe una lista de movimientos posibles.
 	def initialize list
+		if list.length < 1 
+			raise "La lista #{list} no puede ser vacía"
+		end
 		self.list = list.uniq
+		#x = self.list.each do |s|
+		#	if not s.is_a?Strategy
+		#		raise "Los elementos de la lista deben ser ':Rock', ':Paper' o ':Scissors'"
+		#end
 		self.gen = Random.new(SEED)
 	end
 
 	# Método que genera el próximo Movement. Usa una distribución uniforme.
 	def next m
 		n = @gen.rand(self.list.length)
+		puts ("N")
+		puts (n)
 		eval(self.list[n].to_s).new
 	end
 
@@ -147,33 +158,40 @@ end
 # Subclase de Strategy. 
 class Biased < Strategy
 
-	attr_accessor :k, :v, :gen, :x, :sum, :l
+	attr_accessor :gen, :list, :sum, :l, :map
 
 	# Constructor de la subclase Biased. Recibe un mapa de movimientos posibles 
 	# y sus probabilidades asociadas.
 	def initialize m
-		self.k = m.keys
-		self.v = m.values.inject(0, :+)
 		self.gen = Random.new(SEED)
-		self.x = []
+		self.list = []
 		self.sum = 0
-		self.l = m.each do |k,v| 
-			v.times {self.x.push(k)}
+		m.each do |k,v| 
+			v.times {self.list.push(k)}
 			self.sum+=v
 		end
+		self.map = m
 	end
 
 	# Método que genera el próximo Movement. Utiliza una distribución sesgada 
 	# en base a probabilidades asociadas a movimientos.
 	def next m
-		n = self.gen.rand(self.x.length)
-		eval(self.x[n].to_s).new
+		#puts self.list
+		n = self.gen.rand(self.list.length)
+		puts ("N")
+		puts (n)
+		eval(self.list[n].to_s).new
 	end
 
 	# Método que lleva la estrategia a su estado inicial. 
 	# El generador vuelve a utilizar la semilla original.
 	def reset
 		self.gen = Random.new(SEED)
+	end
+
+	# Método que retorna la estrategia como un string.
+	def to_s
+		"#{self.class}. Probabilidades asociadas: #{self.map}"
 	end
 end
 
@@ -229,7 +247,8 @@ class Smart < Strategy
 			self.last[m.to_sym] += 1
 			gen = Random.new(SEED)
 			n = gen.rand(self.last[:Rock] + self.last[:Paper] + self.last[:Scissors])
-			
+			puts ( "N")
+			puts(n)
 			if 0 <= n and n < self.last[:Paper]
 				x =Scissors.new()
 			elsif self.last[:Paper] <= n and n < self.last[:Paper] + self.last[:Rock]
@@ -238,9 +257,11 @@ class Smart < Strategy
 				x = Rock.new()
 			end
 			puts self.last
+			puts self.to_s
 			x
 		else			
 			puts self.last
+			puts self.to_s
 			self.first
 		end
 		
@@ -253,7 +274,8 @@ class Smart < Strategy
 
 	# Método que retorna la estrategia como un string.
 	def to_s
-		"#{self.class}. Rock: #{self.last[:Rock]}, Paper: #{self.last[:Paper]}, Scissors: #{self.last[:Scissors]}"
+		"#{self.class}. Últimas jugadas del oponente: Rock: #{self.last[:Rock]}"\
+		", Paper: #{self.last[:Paper]}, Scissors: #{self.last[:Scissors]}"
 
 	end
 end
@@ -275,26 +297,34 @@ class Match
 		self.strategy2 = p[:Multivac]
 
 		if self.strategy1.nil? or self.strategy2.nil?
-			raise "Los nombres de los jugadores deben ser ':Deepthought' y ':Multivac'"
+			raise "Las claves que representan los nombres de los jugadores en "\
+				  "el mapa #{p} deben ser ':Deepthought' y ':Multivac'"
 		elsif (not self.strategy1.is_a?Strategy) or (not self.strategy2.is_a?Strategy)
-			raise "Los valores del mapa deben ser instancias de la clase Strategy"
+			raise "Los valores del mapa #{p} deben ser instancias de la clase Strategy"
 		end
 
-		self.points1   = 0
-		self.points2   = 0
-		self.round    = 0
-		self.move1 = nil
-		self.move2 = nil
+		self.points1 = 0
+		self.points2 = 0
+		self.round   = 0
+		self.move1   = nil
+		self.move2   = nil
 	end
 
 	# Método que completa n rondas en el juego.
 	def rounds n
 		n.times do
 			self.move1, self.move2 = self.strategy1.next(self.move2) , self.strategy2.next(self.move1)
+			puts ("MOVE 1")
+			puts (self.move1)
+			puts ("MOVE 2")
+			puts (self.move2)
 			res = self.move1.score self.move2
+			puts ("RES")
+			puts (res)
 			self.points1 += res[0]
 			self.points2 += res[1]
 			self.round += 1
+			puts message
 		end
 		puts message
 		self.restart
@@ -305,10 +335,17 @@ class Match
 	def upto n
 		while self.points1 < n and self.points2 < n do
 			self.move1, self.move2 = self.strategy1.next(self.move2) , self.strategy2.next(self.move1)
+			puts ("MOVE 1")
+			puts (self.move1)
+			puts ("MOVE 2")
+			puts (self.move2)
 			res = self.move1.score self.move2 
+			puts ("RES")
+			puts (res)
 			self.points1 += res[0]
 			self.points2 += res[1]
 			self.round += 1
+			puts message
 		end
 		puts message
 		self.restart
