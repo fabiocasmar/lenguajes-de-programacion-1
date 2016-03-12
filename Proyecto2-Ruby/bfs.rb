@@ -4,7 +4,7 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.7.0 
+ 	Versión: v0.8.0 
 =end 
 
 
@@ -17,6 +17,7 @@ module Bfs
 	La función bfs realiza la ejecución del bfs de manera genérica, 
 	haciendo uso de la función each de la clase, del objeto.
 =end
+    protected
     def bfs(start)
         q          = []
         q.push(start)
@@ -36,6 +37,7 @@ module Bfs
 	La función find recibe un nodo desde el cual se ejecutará bfs y un predicado. 
 	Se devolverá el primer nodo que cumpla con el predicado.
 =end
+    public
     def find(start, predicate)
         raise "start debe tener modulo bfs." unless start.respond_to? :bfs
         start.bfs(start) { |n| return n if predicate.call(n) } 
@@ -45,6 +47,7 @@ module Bfs
 	La función path recibe un nodo desde el cual se ejecutará bfs y un predicado. 
 	Se devolverá el camino desde el nodo start, hasta el primer nodo que cumpla el predicado.
 =end
+    public
     def path(start, predicate)
         raise "start debe tener modulo bfs." unless start.respond_to? :bfs
         f = { start => nil }
@@ -72,6 +75,7 @@ module Bfs
 	un action que se ejecutará sobre  cada nodo. Se devolverá una lista
 	con todos los nodos visitado.
 =end
+    public
     def walk (start, action)
         raise "start debe tener modulo bfs." unless start.respond_to? :bfs
         v = []
@@ -166,6 +170,7 @@ include Bfs
 	válida, por ejemplo, un estado inválido es cuando están la cabra 
 	y el lobo del mismo lado, y el bote se encuentra del otro lado.
 =end
+    protected
     def fun_ver (s)
         if (s.value["side"] == :right)
             side_in = "left"
@@ -184,6 +189,7 @@ include Bfs
 	La función initialize de LCR permite crear un
 	Grafo implícito, e inicializarlo.
 =end
+    public
     def initialize(side,left,right)
         left.map!  { |c| c.to_sym }
         right.map! { |c| c.to_sym }
@@ -206,6 +212,7 @@ include Bfs
 	sera utilizado para iterar sobre los hijos del estado,
 	que serán generado al momento de requerirlos.
 =end
+    public
     def each(p)
         if self.value["side"] == :left
             o = "left"
@@ -235,6 +242,7 @@ include Bfs
 	La función == de LCR, permite saber si dos
 	 nodos LCR son iguales.
 =end
+    protected
     def ==(comp)
         if comp.is_a?LCR
             ((self.value["side"]           == comp.value["side"])) and
@@ -250,11 +258,12 @@ include Bfs
 	para resolver el grafo implícito y devolver la serie de estados 
 	por los que pasar para llegar al estado objetivo.
 =end
+    public
     def solve
         raise "El estado que ha introducido es invalido" unless self.fun_ver(self)
         o = LCR.new(:right,[],[:repollo,:cabra,:lobo])
         p = lambda { |x| x == o }
-        path(self,p).each { |m| puts m.value }
+        self.path(self,p).each { |m| puts m.value }
         return true
     end
 
