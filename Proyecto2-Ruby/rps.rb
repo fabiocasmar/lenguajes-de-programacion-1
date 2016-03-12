@@ -361,6 +361,12 @@ class Match
 		self.move2 = nil
 	end
 
+	# Método que retorna el Match como un string.
+	def to_s
+		"#{self.class}.\n:Deepthought = #{self.strategy1.class}"\
+		"\n:Multivac = #{self.strategy2.class}"
+	end
+
 	# Método privado que genera un mapa indicando los puntos obtenidos por cada 
 	# jugador y la cantidad de rondas jugadas.
 	private
