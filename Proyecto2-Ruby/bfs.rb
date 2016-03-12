@@ -4,7 +4,7 @@
                    	  Patricia Reinoso    11-10851                                   
  	Organización: Universidad Simón Bolívar                                     
  	Proyecto: Programación Orientada a Objetos - Lenguajes de Programación I                          
- 	Versión: v0.8.0 
+ 	Versión: v0.9.0 
 =end 
 
 
