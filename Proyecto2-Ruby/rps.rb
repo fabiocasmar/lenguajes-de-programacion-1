@@ -124,22 +124,21 @@ class Uniform < Strategy
 
 	# Constructor de la subclase Uniform. Recibe una lista de movimientos posibles.
 	def initialize list
-		if list.length < 1 
-			raise "La lista #{list} no puede ser vacía"
-		end
+		raise "La lista #{list} no puede ser vacía." if list.empty?
+
 		self.list = list.uniq
-		#x = self.list.each do |s|
-		#	if not s.is_a?Strategy
-		#		raise "Los elementos de la lista deben ser ':Rock', ':Paper' o ':Scissors'"
-		#end
+		self.list.each do |m|
+			if m != :Rock and m != :Paper and m != :Scissors
+				raise "Los elementos de la lista #{list} deben ser "\
+				"':Rock', ':Paper' o ':Scissors'."
+			end
+		end
 		self.gen = Random.new(SEED)
 	end
 
 	# Método que genera el próximo Movement. Usa una distribución uniforme.
 	def next m
 		n = @gen.rand(self.list.length)
-		puts ("N")
-		puts (n)
 		eval(self.list[n].to_s).new
 	end
 
@@ -151,7 +150,7 @@ class Uniform < Strategy
 
 	# Método que retorna la estrategia como un string.
 	def to_s
-		"#{self.class}. Posibles valores: #{self.list}"
+		"#{self.class}. Posibles valores: #{self.list}."
 	end
 end
 
@@ -163,10 +162,19 @@ class Biased < Strategy
 	# Constructor de la subclase Biased. Recibe un mapa de movimientos posibles 
 	# y sus probabilidades asociadas.
 	def initialize m
+
+		raise "El mapa #{m} no puede ser vacío." if m.empty?
+
 		self.gen = Random.new(SEED)
 		self.list = []
 		self.sum = 0
-		m.each do |k,v| 
+		m.each do |k,v|
+		 	if k != :Rock and k != :Paper and k != :Scissors
+				raise "Los elementos del mapa #{m} deben ser "\
+				"':Rock', ':Paper' o ':Scissors'."
+			elsif not v.is_a? Integer
+				raise "Las probabiblidades en el mapa #{m} deben ser números enteros."
+			end
 			v.times {self.list.push(k)}
 			self.sum+=v
 		end
@@ -176,10 +184,7 @@ class Biased < Strategy
 	# Método que genera el próximo Movement. Utiliza una distribución sesgada 
 	# en base a probabilidades asociadas a movimientos.
 	def next m
-		#puts self.list
 		n = self.gen.rand(self.list.length)
-		puts ("N")
-		puts (n)
 		eval(self.list[n].to_s).new
 	end
 
@@ -191,7 +196,7 @@ class Biased < Strategy
 
 	# Método que retorna la estrategia como un string.
 	def to_s
-		"#{self.class}. Probabilidades asociadas: #{self.map}"
+		"#{self.class}. Probabilidades asociadas: #{self.map}."
 	end
 end
 
@@ -224,7 +229,7 @@ class Mirror < Strategy
 
 	# Método que retorna la estrategia como un string.
 	def to_s
-		"#{self.class}. Primera jugada: #{@first.to_s}"
+		"#{self.class}. Primera jugada: #{@first.to_s}."
 	end
 end
 
@@ -247,8 +252,7 @@ class Smart < Strategy
 			self.last[m.to_sym] += 1
 			gen = Random.new(SEED)
 			n = gen.rand(self.last[:Rock] + self.last[:Paper] + self.last[:Scissors])
-			puts ( "N")
-			puts(n)
+		
 			if 0 <= n and n < self.last[:Paper]
 				x =Scissors.new()
 			elsif self.last[:Paper] <= n and n < self.last[:Paper] + self.last[:Rock]
@@ -256,12 +260,8 @@ class Smart < Strategy
 			elsif self.last[:Paper] + self.last[:Rock] <= n and n < self.last[:Rock] + self.last[:Paper] + self.last[:Scissors]
 				x = Rock.new()
 			end
-			puts self.last
-			puts self.to_s
 			x
 		else			
-			puts self.last
-			puts self.to_s
 			self.first
 		end
 		
@@ -275,7 +275,7 @@ class Smart < Strategy
 	# Método que retorna la estrategia como un string.
 	def to_s
 		"#{self.class}. Últimas jugadas del oponente: Rock: #{self.last[:Rock]}"\
-		", Paper: #{self.last[:Paper]}, Scissors: #{self.last[:Scissors]}"
+		", Paper: #{self.last[:Paper]}, Scissors: #{self.last[:Scissors]}."
 
 	end
 end
@@ -289,18 +289,16 @@ class Match
 	# estrategias de los jugadores 
 	def initialize p
 
-		if p.length!= 2
-			raise "Un Match solo puede ser creado con 2 jugadores."
-		end
+		raise "Un Match solo puede ser creado con 2 jugadores." unless p.length == 2
 	 	
 		self.strategy1 = p[:Deepthought] 
 		self.strategy2 = p[:Multivac]
 
 		if self.strategy1.nil? or self.strategy2.nil?
 			raise "Las claves que representan los nombres de los jugadores en "\
-				  "el mapa #{p} deben ser ':Deepthought' y ':Multivac'"
+				  "el mapa #{p} deben ser ':Deepthought' y ':Multivac'."
 		elsif (not self.strategy1.is_a?Strategy) or (not self.strategy2.is_a?Strategy)
-			raise "Los valores del mapa #{p} deben ser instancias de la clase Strategy"
+			raise "Los valores del mapa #{p} deben ser instancias de la clase Strategy."
 		end
 
 		self.points1 = 0
@@ -314,17 +312,10 @@ class Match
 	def rounds n
 		n.times do
 			self.move1, self.move2 = self.strategy1.next(self.move2) , self.strategy2.next(self.move1)
-			puts ("MOVE 1")
-			puts (self.move1)
-			puts ("MOVE 2")
-			puts (self.move2)
 			res = self.move1.score self.move2
-			puts ("RES")
-			puts (res)
 			self.points1 += res[0]
 			self.points2 += res[1]
 			self.round += 1
-			puts message
 		end
 		puts message
 		self.restart
@@ -335,17 +326,10 @@ class Match
 	def upto n
 		while self.points1 < n and self.points2 < n do
 			self.move1, self.move2 = self.strategy1.next(self.move2) , self.strategy2.next(self.move1)
-			puts ("MOVE 1")
-			puts (self.move1)
-			puts ("MOVE 2")
-			puts (self.move2)
 			res = self.move1.score self.move2 
-			puts ("RES")
-			puts (res)
 			self.points1 += res[0]
 			self.points2 += res[1]
 			self.round += 1
-			puts message
 		end
 		puts message
 		self.restart
