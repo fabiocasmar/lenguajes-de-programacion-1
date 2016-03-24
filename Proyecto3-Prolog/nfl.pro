@@ -94,6 +94,16 @@ partidos(T1,T2) :- intra-conf1(T1,T2).
 partidos(T1,T2) :- inter-conf1(T1,T2).
 partidos(T1,T2) :- pos(T1,T2).
 
+agregar(T1,X) :- findall(T2, partidos(T1,T2),X).
+
+%schedule :- calendario(Cal),
+%	Numero is 1,
+%	member(Semana,Cal),
+%	write('Week '), write(Numero),
+%	write('------'),
+%	imprimir(Semana),nl,
+
+imprimir([[E1,E2]|Juegos]) :- write(E1), write(' at '), write(E2), nl, imprimir(Juegos).
 
 bye(Lista) :- Lista = [A,B,C,D,E,F,G,H],
 			A = [_,_,_,_],
@@ -138,3 +148,16 @@ bye(Lista) :- Lista = [A,B,C,D,E,F,G,H],
 			member(rams,G),
 			member(fortynineers,H),
 			true.
+
+selectN(0,_,[]) :- !.
+selectN(N,L,[X|S]) :- N > 0, el(X,L,R), N1 is N-1, selectN(N1,R,S).
+
+el(X,[X|L],L).
+el(X,[_|L],R) :- el(X,L,R).
+
+subtract([], _, []).
+subtract([Head|Tail], L2, L3) :- memberchk(Head, L2),!,subtract(Tail, L2, L3).
+subtract([Head|Tail1], L2, [Head|Tail3]) :- subtract(Tail1, L2, Tail3).
+
+group([],[],[]).
+group(G,[N1|Ns],[G1|Gs]) :- selectN(N1,G,G1), subtract(G,G1,R), group(R,Ns,Gs).
