@@ -84,26 +84,33 @@ inter-conf(Partido):- Partido = [T1,T2], inter(D1,D2), standings(afc,D1,_,T1),
 inter-conf1(T1,T2):- inter(D1,D2), standings(afc,D1,_,T1), standings(nfc,D2,_,T2).
 inter-conf1(T1,T2):- inter(D1,D2), standings(afc,D1,_,T2), standings(nfc,D2,_,T1).
 
+pos(Partido) :- Partido = [T1,T2], intra(north,D5), standings(C,north,P,T1), 
+				standings(C,D2,P,T2), T1\= T2, D2 \= D5.
+pos(Partido) :- Partido = [T1,T2], intra(D5,east), standings(C,east,P,T1), 
+				standings(C,D2,P,T2), T1\= T2, D2 \= D5.
+
 % Genera las combinaciones de equipo para los partidos segun la posición
-pos(T1,T2) :- intra(D1,D5), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
-pos(T1,T2) :- intra(D5,D1), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
+pos1(T1,T2) :- intra(D1,D5), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
+pos1(T1,T2) :- intra(D5,D1), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
 
-partidos(T1,T2) :- divisionales1(T1,T2). 
-partidos(T1,T2) :- divisionales1(T1,T2).
-partidos(T1,T2) :- intra-conf1(T1,T2).
-partidos(T1,T2) :- inter-conf1(T1,T2).
-partidos(T1,T2) :- pos(T1,T2).
+% Genera listas de 2 elementos que representan todos los partidos.
+partidos(Partido) :- divisionales(Partido).
+partidos(Partido) :- intra-conf(Partido).
+partidos(Partido) :- inter-conf(Partido).
+partidos(Partido) :- pos(Partido).
 
-agregar(T1,X) :- findall(T2, partidos(T1,T2),X).
+% Genera la lista de todos lode partidos.
+agr(Partido) :- findall(X,partidos(X),Partido).
 
-%schedule :- calendario(Cal),
-%	Numero is 1,
-%	member(Semana,Cal),
-%	write('Week '), write(Numero),
-%	write('------'),
-%	imprimir(Semana),nl,
+% Genera los partidos para un equipo determinado.
+partidos1(T1,T2) :- divisionales1(T1,T2). 
+partidos1(T1,T2) :- divisionales1(T1,T2).
+partidos1(T1,T2) :- intra-conf1(T1,T2).
+partidos1(T1,T2) :- inter-conf1(T1,T2).
+partidos1(T1,T2) :- pos1(T1,T2).
 
-imprimir([[E1,E2]|Juegos]) :- write(E1), write(' at '), write(E2), nl, imprimir(Juegos).
+% Dato un equipo, genera la lista de todos los contrincancantes.
+agregar(T1,X) :- findall(T2, partidos1(T1,T2),X).
 
 bye(Lista) :- Lista = [A,B,C,D,E,F,G,H],
 			A = [_,_,_,_],
@@ -149,15 +156,27 @@ bye(Lista) :- Lista = [A,B,C,D,E,F,G,H],
 			member(fortynineers,H),
 			true.
 
+% Seleciona N elementos de una lista L y los coloca en un conjunto S.
 selectN(0,_,[]) :- !.
 selectN(N,L,[X|S]) :- N > 0, el(X,L,R), N1 is N-1, selectN(N1,R,S).
 
 el(X,[X|L],L).
 el(X,[_|L],R) :- el(X,L,R).
 
+% Elimina de un conjuntos, los elementos en una lista.
 subtract([], _, []).
 subtract([Head|Tail], L2, L3) :- memberchk(Head, L2),!,subtract(Tail, L2, L3).
 subtract([Head|Tail1], L2, [Head|Tail3]) :- subtract(Tail1, L2, Tail3).
 
+% Distribuye los elementos de una lista en subconjuntos.
 group([],[],[]).
 group(G,[N1|Ns],[G1|Gs]) :- selectN(N1,G,G1), subtract(G,G1,R), group(R,Ns,Gs).
+
+%schedule :- calendario(Cal),
+%	Numero is 1,
+%	member(Semana,Cal),
+%	write('Week '), write(Numero),
+%	write('------'),
+%	imprimir(Semana),nl,
+
+imprimir([[E1,E2]|Juegos]) :- write(E1), write(' at '), write(E2), nl, imprimir(Juegos).
