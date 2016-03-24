@@ -2,51 +2,51 @@
 % Equipos de la División Este.
 standings(afc,east,1,patriots).
 standings(afc,east,2,jets).
-standings(afc,east,3,bills).
-standings(afc,east,4,dolphins).
+%standings(afc,east,3,bills).
+%standings(afc,east,4,dolphins).
 
 % Equipos de la División Norte.
 standings(afc,north,1,bengals).
 standings(afc,north,2,steelers).
-standings(afc,north,3,ravens).
-standings(afc,north,4,browns).
+%standings(afc,north,3,ravens).
+%standings(afc,north,4,browns).
 
 % Equipos de la División Sur.
 standings(afc,south,1,texans).
 standings(afc,south,2,colts).
-standings(afc,south,3,jaguars).
-standings(afc,south,4,titans).
+%standings(afc,south,3,jaguars).
+%standings(afc,south,4,titans).
 
 % Equipos de la División Oeste.
 standings(afc,west,1,broncos).
 standings(afc,west,2,chiefs).
-standings(afc,west,3,raiders).
-standings(afc,west,4,chargers).
+%standings(afc,west,3,raiders).
+%standings(afc,west,4,chargers).
 
 % CONFERENCIA NACIONAL (nfc).
 % Equipos de la División Este.
 standings(nfc,east,1,redskins).
 standings(nfc,east,2,eagles).
-standings(nfc,east,3,giants).
-standings(nfc,east,4,cowboys).
+%standings(nfc,east,3,giants).
+%standings(nfc,east,4,cowboys).
 
 % Equipos de la División Norte.
 standings(nfc,north,1,vikings).
 standings(nfc,north,2,packers).
-standings(nfc,north,3,lions).
-standings(nfc,north,4,bears).
+%standings(nfc,north,3,lions).
+%standings(nfc,north,4,bears).
 
 % Equipos de la División Sur.
 standings(nfc,south,1,panthers).
 standings(nfc,south,2,falcons).
-standings(nfc,south,3,saints).
-standings(nfc,south,4,buccaneers).
+%standings(nfc,south,3,saints).
+%standings(nfc,south,4,buccaneers).
 
 % Equipos de la División Oeste.
 standings(nfc,west,1,cardinals).
 standings(nfc,west,2,seahawks).
-standings(nfc,west,3,rams).
-standings(nfc,west,4,fortynineers).
+%standings(nfc,west,3,rams).
+%standings(nfc,west,4,fortynineers).
 
 % Divisiones establecidas para los juegos intra-conferencia.
 intra(north,east).
@@ -94,13 +94,13 @@ pos1(T1,T2) :- intra(D1,D5), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2
 pos1(T1,T2) :- intra(D5,D1), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
 
 % Genera listas de 2 elementos que representan todos los partidos.
-partidos(Partido) :- divisionales(Partido).
-partidos(Partido) :- intra-conf(Partido).
-partidos(Partido) :- inter-conf(Partido).
-partidos(Partido) :- pos(Partido).
+games(Partido) :- divisionales(Partido).
+%games(Partido) :- intra-conf(Partido).
+%games(Partido) :- inter-conf(Partido).
+games(Partido) :- pos(Partido).
 
 % Genera la lista de todos lode partidos.
-agr(Partido) :- findall(X,partidos(X),Partido).
+agr(Partido) :- findall(X,games(X),Partido).
 
 % Genera los partidos para un equipo determinado.
 partidos1(T1,T2) :- divisionales1(T1,T2). 
@@ -172,11 +172,55 @@ subtract([Head|Tail1], L2, [Head|Tail3]) :- subtract(Tail1, L2, Tail3).
 group([],[],[]).
 group(G,[N1|Ns],[G1|Gs]) :- selectN(N1,G,G1), subtract(G,G1,R), group(R,Ns,Gs).
 
-%schedule :- calendario(Cal),
-%	Numero is 1,
-%	member(Semana,Cal),
-%	write('Week '), write(Numero),
-%	write('------'),
-%	imprimir(Semana),nl,
+calendario(Cal,Bye) :- findall(X,games(X), Games),
+				%Teams = [patriots,jets,bills,dolphins,bengals,steelers,ravens,
+				%     browns,texans,colts,jaguars,titans,broncos,chiefs,raiders,
+				%     chargers,redskins,eagles,giants,cowboys,vikings,packers,
+				%     lions,bears,panthers,falcons,saints,buccaneers,cardinals,
+				%     seahawks,rams,fortynineers],
 
-imprimir([[E1,E2]|Juegos]) :- write(E1), write(' at '), write(E2), nl, imprimir(Juegos).
+				Teams = [patriots,jets,bengals,steelers,texans,colts,broncos,
+					chiefs,redskins,eagles,vikings,packers,panthers,falcons,
+					cardinals,seahawks],
+
+				%group(Games,[14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16],Cal),
+				group(Games,[2,2,2,2,4,4,4,4,4,4],Cal),
+				%group(Teams,[4,4,4,4,4,4,4,4],Bye).
+				group(Teams,[4,4,4,4],Bye).
+
+assign_team([], _List).
+assign_team([D|Ds], List):-
+        select(D, List, NewList),
+        assign_team(Ds, NewList).
+
+				%Uno =[_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+				%Dos =[_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+
+	
+
+
+schedule :- calendario(Cal,Bye),
+			nl,
+			print_week(Cal,Bye,1).
+
+print_week([],_,_).
+print_week([W|Cal],[],N) :- write('Week '), write(N), nl,
+							write('------'), nl,
+							print_game(W),
+							N1 is N + 1,
+							print_week(Cal,[],N1).
+print_week([W|Cal],[B|Bye],N) :- write('Week '), write(N), nl,
+								write('------'), nl,
+								print_game(W),
+								write('Bye: '),
+								print_bye(B),nl,
+								N1 is N + 1,
+								print_week(Cal,Bye,N1).
+
+print_game([]) :- nl.
+print_game([[T1,T2]|Game]) :- write(T1), write(' at '), write(T2), nl,
+								print_game(Game).
+
+print_bye([B]):- write(B), write('.'), nl.
+print_bye([B|Bye]) :- write(B),write(', '), print_bye(Bye).
+
