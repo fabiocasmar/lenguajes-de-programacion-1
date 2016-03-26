@@ -1,3 +1,10 @@
+%   Nombre del archivo:  nfl.pro
+%   Realizado por:    Fabio    Castro     10-10132
+%                     Patricia Reinoso    11-10851
+%   Organización: Universidad Simón Bolívar
+%   Proyecto: Programación Lógica - Lenguajes de Programación I
+%   Versión: v0.1.0
+
 standings(afc,east,1,patriots).
 standings(afc,east,2,jets).
 standings(afc,east,3,bills).
