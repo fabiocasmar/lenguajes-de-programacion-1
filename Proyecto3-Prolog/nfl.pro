@@ -186,7 +186,14 @@ calendario(Cal,Bye) :- findall(X,games(X), Games),
 				%group(Games,[14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16],Cal),
 				group(Games,[2,2,2,2,4,4,4,4,4,4],Cal),
 				%group(Teams,[4,4,4,4,4,4,4,4],Bye).
-				group(Teams,[4,4,4,4],Bye).
+				group(Teams,[4,4,4,4],Bye),
+				not_repeated(Cal,Bye).
+
+not_repeated(W,[]) :- true.
+not_repeated([W|Weeks],[B|Byes]) :- \+common_member(W,B), not_repeated(Weeks,Byes).
+
+common_member(Games,Teams) :- member(G,Games), member(T,G), member(T,Teams),!.
+
 
 assign_team([], _List).
 assign_team([D|Ds], List):-
@@ -195,9 +202,6 @@ assign_team([D|Ds], List):-
 
 				%Uno =[_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
 				%Dos =[_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
-
-	
-
 
 schedule :- calendario(Cal,Bye),
 			nl,
