@@ -94,10 +94,10 @@ pos1(T1,T2) :- intra(D1,D5), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2
 pos1(T1,T2) :- intra(D5,D1), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
 
 % Genera listas de 2 elementos que representan todos los partidos.
-games(Partido) :- divisionales(Partido).
-%games(Partido) :- intra-conf(Partido).
+%games(Partido) :- divisionales(Partido).
+games(Partido) :- intra-conf(Partido).
 %games(Partido) :- inter-conf(Partido).
-games(Partido) :- pos(Partido).
+%games(Partido) :- pos(Partido).
 
 % Genera la lista de todos lode partidos.
 agr(Partido) :- findall(X,games(X),Partido).
@@ -172,28 +172,39 @@ subtract([Head|Tail1], L2, [Head|Tail3]) :- subtract(Tail1, L2, Tail3).
 group([],[],[]).
 group(G,[N1|Ns],[G1|Gs]) :- selectN(N1,G,G1), subtract(G,G1,R), group(R,Ns,Gs).
 
-calendario(Cal,Bye) :- findall(X,games(X), Games),
+calendario(Cal,Bye) :- %findall(X,games(X), Games),
 				%Teams = [patriots,jets,bills,dolphins,bengals,steelers,ravens,
 				%     browns,texans,colts,jaguars,titans,broncos,chiefs,raiders,
 				%     chargers,redskins,eagles,giants,cowboys,vikings,packers,
 				%     lions,bears,panthers,falcons,saints,buccaneers,cardinals,
 				%     seahawks,rams,fortynineers],
 
-				Teams = [patriots,jets,bengals,steelers,texans,colts,broncos,
-					chiefs,redskins,eagles,vikings,packers,panthers,falcons,
-					cardinals,seahawks],
+				%Games = [[bears,patriots],[bengals,jets],[steelers,redskins],[panthers,jets],
+				%		[vikings,redskins],[lions,eagles],[packers,fortynineers],[colts,bears],
+				%		[texans,broncos],[browns,chiefs],[colts,redskins],[vikings,saints],
+				%		[panthers,cardinals],[texans,seahawks],[bills,buccaneers],[jets,lions]],
+				Teams = [cardinals,seahawks,packers,panthers,falcons,
+					chiefs,redskins,eagles,vikings,
+					texans,colts,broncos,patriots,jets,bengals,steelers],
 
 				%group(Games,[14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16],Cal),
 				group(Games,[2,2,2,2,4,4,4,4,4,4],Cal),
+				%group(Games,[8,8],Cal),
+				only_play_once(Cal),
 				%group(Teams,[4,4,4,4,4,4,4,4],Bye).
 				group(Teams,[4,4,4,4],Bye),
 				not_repeated(Cal,Bye).
 
+only_play_once([]).
+only_play_once([Week|Calendar]) :- verify(Week), only_play_once(Calendar).
+
+verify([X]).
+verify([G1|Games]) :- \+common_team(Games,G1), verify(Games).
+
 not_repeated(W,[]) :- true.
-not_repeated([W|Weeks],[B|Byes]) :- \+common_member(W,B), not_repeated(Weeks,Byes).
+not_repeated([W|Weeks],[B|Byes]) :- \+common_team(W,B), not_repeated(Weeks,Byes).
 
-common_member(Games,Teams) :- member(G,Games), member(T,G), member(T,Teams),!.
-
+common_team(Games,Teams) :- member(G,Games), member(T,G), member(T,Teams),!.
 
 assign_team([], _List).
 assign_team([D|Ds], List):-
