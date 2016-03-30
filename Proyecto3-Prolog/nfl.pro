@@ -2,20 +2,20 @@
 % Equipos de la División Este.
 standings(afc,east,1,patriots).
 standings(afc,east,2,jets).
-%standings(afc,east,3,bills).
-%standings(afc,east,4,dolphins).
+standings(afc,east,3,bills).
+standings(afc,east,4,dolphins).
 
 % Equipos de la División Norte.
 standings(afc,north,1,bengals).
 standings(afc,north,2,steelers).
-%standings(afc,north,3,ravens).
-%standings(afc,north,4,browns).
+standings(afc,north,3,ravens).
+standings(afc,north,4,browns).
 
 % Equipos de la División Sur.
 standings(afc,south,1,texans).
 standings(afc,south,2,colts).
-%standings(afc,south,3,jaguars).
-%standings(afc,south,4,titans).
+standings(afc,south,3,jaguars).
+standings(afc,south,4,titans).
 
 % Equipos de la División Oeste.
 standings(afc,west,1,broncos).
@@ -94,10 +94,10 @@ pos1(T1,T2) :- intra(D1,D5), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2
 pos1(T1,T2) :- intra(D5,D1), standings(C,D1,P,T1), standings(C,D2,P,T2), T1\= T2, D2 \= D5.
 
 % Genera listas de 2 elementos que representan todos los partidos.
-%games(Partido) :- divisionales(Partido).
+games(Partido) :- divisionales(Partido).
 games(Partido) :- intra-conf(Partido).
-%games(Partido) :- inter-conf(Partido).
-%games(Partido) :- pos(Partido).
+games(Partido) :- inter-conf(Partido).
+games(Partido) :- pos(Partido).
 
 % Genera la lista de todos lode partidos.
 agr(Partido) :- findall(X,games(X),Partido).
@@ -172,7 +172,27 @@ subtract([Head|Tail1], L2, [Head|Tail3]) :- subtract(Tail1, L2, Tail3).
 group([],[],[]).
 group(G,[N1|Ns],[G1|Gs]) :- selectN(N1,G,G1), subtract(G,G1,R), group(R,Ns,Gs).
 
-calendario(Cal,Bye) :- %findall(X,games(X), Games),
+% Seleciona N elementos de una lista L y los coloca en un conjunto S.
+selectN2(0,_,[]) :- !.
+selectN2(N,L,[X|S]) :- N > 0, el2(X,L,R), N1 is N-1, selectN2(N1,R,S), 
+						\+common_team(S,X).
+
+%check([G|Games]) :- 
+%same_team(Game1,Game2):- member(Team,Game1), member(Team,Game2),!.
+
+el2(X,[X|L],L).
+el2(X,[_|L],R) :- el2(X,L,R).
+
+% Elimina de un conjuntos, los elementos en una lista.
+subtract2([], _, []).
+subtract2([Head|Tail], L2, L3) :- memberchk(Head, L2),!,subtract2(Tail, L2, L3).
+subtract2([Head|Tail1], L2, [Head|Tail3]) :- subtract2(Tail1, L2, Tail3).
+
+% Distribuye los elementos de una lista en subconjuntos.
+group2([],[],[]).
+group2(G,[N1|Ns],[G1|Gs]) :- selectN2(N1,G,G1), subtract2(G,G1,R), group2(R,Ns,Gs).
+
+calendario(Cal,Bye) :- findall(X,games(X), Games),
 				%Teams = [patriots,jets,bills,dolphins,bengals,steelers,ravens,
 				%     browns,texans,colts,jaguars,titans,broncos,chiefs,raiders,
 				%     chargers,redskins,eagles,giants,cowboys,vikings,packers,
@@ -187,32 +207,24 @@ calendario(Cal,Bye) :- %findall(X,games(X), Games),
 					chiefs,redskins,eagles,vikings,
 					texans,colts,broncos,patriots,jets,bengals,steelers],
 
-				%group(Games,[14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16],Cal),
-				group(Games,[2,2,2,2,4,4,4,4,4,4],Cal),
-				%group(Games,[8,8],Cal),
-				only_play_once(Cal),
+				%group2(Games,[14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16],Cal),
+				group2(Games,[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],Cal),
+				%group2(Games,[4,4,4,4],Cal),
+				%only_play_once(Cal),
 				%group(Teams,[4,4,4,4,4,4,4,4],Bye).
-				group(Teams,[4,4,4,4],Bye),
-				not_repeated(Cal,Bye).
+				group(Teams,[3,3,3,3,3,1],Bye).
+				%not_repeated(Cal,Bye).
 
-only_play_once([]).
-only_play_once([Week|Calendar]) :- verify(Week), only_play_once(Calendar).
+%only_play_once([]).
+%only_play_once([Week|Calendar]) :- verify(Week), only_play_once(Calendar).
 
-verify([X]).
-verify([G1|Games]) :- \+common_team(Games,G1), verify(Games).
+%verify([X]).
+%verify([G1|Games]) :- \+common_team(Games,G1), verify(Games).
 
 not_repeated(W,[]) :- true.
 not_repeated([W|Weeks],[B|Byes]) :- \+common_team(W,B), not_repeated(Weeks,Byes).
 
 common_team(Games,Teams) :- member(G,Games), member(T,G), member(T,Teams),!.
-
-assign_team([], _List).
-assign_team([D|Ds], List):-
-        select(D, List, NewList),
-        assign_team(Ds, NewList).
-
-				%Uno =[_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
-				%Dos =[_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
 
 schedule :- calendario(Cal,Bye),
 			nl,
