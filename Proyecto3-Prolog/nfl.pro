@@ -93,10 +93,10 @@ position(Partido) :- Partido = [T1,T2], intra(D5,east), standings(C,east,P,T1),
 				standings(C,D2,P,T2), T1\= T2, D2 \= D5.
 
 % Predicado que genera listas de 2 elementos que representan todos los partidos.
-games(Partido) :- divisionales(Partido).
+%games(Partido) :- divisionales(Partido).
 games(Partido) :- intra-conf(Partido).
 games(Partido) :- inter-conf(Partido).
-games(Partido) :- position(Partido).
+%games(Partido) :- position(Partido).
 
 % Predicado que genera la lista de todos los partidos.
 agr(Partido) :- findall(X,games(X),Partido).
@@ -154,12 +154,12 @@ calendario(Cal,Bye) :- findall(X,games(X), Games),
 
 				%group2(Games,[14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16],Cal),
 				%group2(Games,[6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,2],Cal),
-				group2(Games,[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],Cal),
+				group2(Games,[7,7,7,7,4],Cal),
 				%only_play_once(Cal),
 				%group(Teams,[4,4,4,4,4,4,4,4],Bye).
 				%take(8,Cal,CalBye),
 				%generate(CalBye,Teams,Bye).
-				group(Teams,[3,3,3,3,3,1],Bye).
+				group(Teams,[4,4,4,4],Bye).
 				%not_repeated(Cal,Bye).
 
 % Predicado que toma los primero N elementos de una lista.
@@ -212,6 +212,7 @@ print_game([[T1,T2]|Game]) :- write(T1), write(' at '), write(T2), nl,
 								print_game(Game).
 
 % Predicado que imprime la lista de equipos que descansan.
+print_bye([]):- nl.
 print_bye([B]):- write(B), write('.'), nl.
 print_bye([B|Bye]) :- write(B),write(', '), print_bye(Bye).
 
