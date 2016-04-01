@@ -5,8 +5,10 @@
 %   ProXecto: Programación Lógica - Lenguajes de Programación I
 %   Versión: v0.5.0
 
+% Funcion vagones que recibe el estado inicial el estado final y devuelve la lista de operaciones
 vagones(INI,FIN,OPE) :- permutation(INI,FIN), mover(FIN,[],[],INI,OPE).
 
+% Realiza el movimiento de los vagones
 mover(S,[],[],S,[]).
 mover(FIN,AB,BL,ACT,OPE) :- reverse(OPE,ROPE), [LA|ROPEs] = ROPE, 
 	LA = pop(below,N), append(NFIN,X,FIN), append(X,AB,NAB), 
