@@ -3,7 +3,7 @@
 %                     Patricia Reinoso    11-10851
 %   Organización: Universidad Simón Bolívar
 %   ProXecto: Programación Lógica - Lenguajes de Programación I
-%   Versión: v0.4.0
+%   Versión: v0.5.0
 
 vagones(INI,FIN,OPE) :- permutation(INI,FIN), mover(FIN,[],[],INI,OPE).
 
