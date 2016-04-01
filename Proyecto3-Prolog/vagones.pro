@@ -3,7 +3,7 @@
 %                     Patricia Reinoso    11-10851
 %   Organización: Universidad Simón Bolívar
 %   Proyecto: Programación Lógica - Lenguajes de Programación I
-%   Versión: v0.2.0
+%   Versión: v0.3.0
 
 vagones(I,F,L) :- permutation(I,F), mover(F,[],[],I,L0), L0 = L.
 
