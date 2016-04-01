@@ -32,23 +32,13 @@ c2(PD1, ID2, PD3, IA1, PA2, PA3, PB1) :-
     (PD1*100 + ID2*10 + PD3)
         =:= ((IA1*100 + PA2*10 +PA3)*PB1).
 
-% Comprueba que multiplicación de A con B, de igual a la suma de C y D.
-% c3(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IA1, PA2, PA3, PB1, PB2) :-
-%    ((PC1*1000 + IC2*100 + PC3*10 + PC4) + (PD1*1000 + ID2*100 + PD3*10))
-%        =:=  ((IA1*100 + PA2*10 + PA3) * (PB1*10 + PB2)).
-
-% Comprueba que multiplicación de A con B, de el resultado R.
-%c4(IA1, PA2, PA3, PB1, PB2, IR1, IR2, PR3, PR4) :-
-%    ((IA1*100 + PA2*10 + PA3) * (PB1*10 + PB2))
-%        =:=  (IR1*1000 + IR2*100 + PR3*10 + PR4).
-
 % Comprueba que la suma de C y D, de el resultado R.
-c5(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IR1, IR2, PR3, PR4) :-
+c3(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IR1, IR2, PR3, PR4) :-
     ((PC1*1000 + IC2*100 + PC3*10 + PC4) + (PD1*1000 + ID2*100 + PD3*10))
         =:= (IR1*1000 + IR2*100 + PR3*10 + PR4).
 
 % Realiza la multiplicación, haciendo uso de las funciones auxiliares.
-pei(PA2,PA3,PB1,PB2,PC1,IC2,PC3,PC4,PD1,ID2,PD3,IR1,IR2,PR3,PR4) :-
+pei:-
     bt(1, 9, IA1),
     bt(0, 9, PA2),
     bt(0, 9, PA3),
@@ -63,10 +53,22 @@ pei(PA2,PA3,PB1,PB2,PC1,IC2,PC3,PC4,PD1,ID2,PD3,IR1,IR2,PR3,PR4) :-
     bt(1, 9, ID2),
     bt(0, 9, PD3),
     c2(PD1, ID2, PD3, IA1, PA2, PA3, PB1),
-% c3(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IA1, PA2, PA3, PB1, PB2),
     bt(1, 9, IR1),
     bt(1, 9, IR2),
     bt(0, 9, PR3),
     bt(0, 9, PR4),
-% c4(IA1, PA2, PA3, PB1, PB2, IR1, IR2, PR3, PR4).
-    c5(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IR1, IR2, PR3, PR4), !.
+    c3(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IR1, IR2, PR3, PR4),
+    write(' '),write(' '),write(IA1),write(' '),write(PA2),
+        write(' '),write(PA3),write(' '),write('*'), nl,
+    write(' '),write(' '),write(' '),write(' '),write(PB1),
+        write(' '),write(PB2),write(' '),write(' '), nl,
+    write('-'),write('-'),write('-'),write('-'),write('-'),
+        write('-'),write('-'),write(' '),write(' '), nl,
+    write(PC1),write(' '),write(IC2),write(' '),write(PC3),
+        write(' '),write(PC4),write(' '),write('+'), nl,
+    write(PD1),write(' '),write(ID2),write(' '),write(PD3),
+        write(' '),write(' '),write(' '),write(' '), nl,
+    write('-'),write('-'),write('-'),write('-'),write('-'),
+        write('-'),write('-'),write(' '),write(' '), nl,
+    write(IR1),write(' '),write(IR2),write(' '),write(PR3),
+        write(' '),write(PR4),write(' '),write(' '),!.
