@@ -10,7 +10,7 @@
 % regular 2016 de la NFL.
 
 % Los standings representan los resultados de la temporada 2015-2016.
-
+%
 % standings(Conferencia,División,Posición,Nombre del equipo).
 % Conferencia puede ser americana (afc) o nacional (nfc),
 % División representa la distribución geográfica (north, east, south o west)
