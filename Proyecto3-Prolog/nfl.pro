@@ -9,6 +9,14 @@
 % El problema es calcular y mostrar calendarios balanceados para la temporada
 % regular 2016 de la NFL.
 
+% Los standings representan los resultados de la temporada 2015-2016.
+
+% standings(Conferencia,División,Posición,Nombre del equipo).
+% Conferencia puede ser americana (afc) o nacional (nfc),
+% División representa la distribución geográfica (north, east, south o west)
+% Posición es un valor P entre 0 y 4 que representa la posición del equipo
+% dentro de su conferencia y división.
+
 % CONFERENCIA AMERICANA (afc).
 % Equipos de la División Este.
 standings(afc,east,1,patriots).
