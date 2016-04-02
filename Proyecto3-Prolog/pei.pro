@@ -10,65 +10,106 @@
 %       dígito par, A, B, C, D o R, indica el número como tal,
 %       y el número la posición en dicho número.
 %
-%     IA1 PA2 PA3 *
-%         PB1 PB2
+%     I1 I2 I3 *
+%         J1 J2
 % ---------------
-% PC1 IC2 PC3 PC4 +
-% PD1 ID2 PD3
+% K1 K2 K3 K4 +
+% L1 L2 L3
 % ---------------
-% IR1 IR2 PR3 PR4
+% M1 M2 M3 M4
 
 % Devuelve de dos en dos los número entre X y Y.
-bt(X,_,X).
-bt(X,Y,Z) :- X1 is X+2, X < Y-1, bt(X1,Y,Z).
+pei_aux(X,_,X).
+pei_aux(X,Y,Z) :- X1 is X+2, X < Y-1, pei_aux(X1,Y,Z).
 
-% Comprueba la multiplicación del primer dígito, del número B con el número A.
-c1(PC1, IC2, PC3, PC4, IA1, PA2, PA3, PB2) :-
-    (PC1*1000 + IC2*100 + PC3*10 + PC4)
-        =:=  ((IA1*100 + PA2*10 + PA3)*PB2).
-
-% Comprueba la multiplicación del segundo dígito, del número B con el número A.
-c2(PD1, ID2, PD3, IA1, PA2, PA3, PB1) :-
-    (PD1*100 + ID2*10 + PD3)
-        =:= ((IA1*100 + PA2*10 +PA3)*PB1).
-
-% Comprueba que la suma de C y D, de el resultado R.
-c3(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IR1, IR2, PR3, PR4) :-
-    ((PC1*1000 + IC2*100 + PC3*10 + PC4) + (PD1*1000 + ID2*100 + PD3*10))
-        =:= (IR1*1000 + IR2*100 + PR3*10 + PR4).
-
-% Realiza la multiplicación, haciendo uso de las funciones auxiliares.
-pei:-
-    bt(1, 9, IA1),
-    bt(0, 9, PA2),
-    bt(0, 9, PA3),
-    bt(2, 9, PB1),
-    bt(0, 9, PB2),
-    bt(2, 9, PC1),
-    bt(1, 9, IC2),
-    bt(0, 9, PC3),
-    bt(0, 9, PC4),
-    c1(PC1, IC2, PC3, PC4, IA1, PA2, PA3, PB2),
-    bt(2, 9, PD1),
-    bt(1, 9, ID2),
-    bt(0, 9, PD3),
-    c2(PD1, ID2, PD3, IA1, PA2, PA3, PB1),
-    bt(1, 9, IR1),
-    bt(1, 9, IR2),
-    bt(0, 9, PR3),
-    bt(0, 9, PR4),
-    c3(PC1, IC2, PC3, PC4, PD1, ID2, PD3, IR1, IR2, PR3, PR4),
-    write(' '),write(' '),write(IA1),write(' '),write(PA2),
-        write(' '),write(PA3),write(' '),write('*'), nl,
-    write(' '),write(' '),write(' '),write(' '),write(PB1),
-        write(' '),write(PB2),write(' '),write(' '), nl,
-    write('-'),write('-'),write('-'),write('-'),write('-'),
-        write('-'),write('-'),write(' '),write(' '), nl,
-    write(PC1),write(' '),write(IC2),write(' '),write(PC3),
-        write(' '),write(PC4),write(' '),write('+'), nl,
-    write(PD1),write(' '),write(ID2),write(' '),write(PD3),
-        write(' '),write(' '),write(' '),write(' '), nl,
-    write('-'),write('-'),write('-'),write('-'),write('-'),
-        write('-'),write('-'),write(' '),write(' '), nl,
-    write(IR1),write(' '),write(IR2),write(' '),write(PR3),
-        write(' '),write(PR4),write(' '),write(' '),!.
+% Realiza la multiplicación, haciendo uso de las funcionespei auxiliares.
+pei :-
+    pei_aux(1, 9, I1),
+    pei_aux(0, 9, I2),
+    pei_aux(0, 9, I3),
+    pei_aux(2, 9, J1),
+    pei_aux(0, 9, J2),
+    pei_aux(2, 9, K1),
+    pei_aux(1, 9, K2),
+    pei_aux(0, 9, K3),
+    pei_aux(0, 9, K4),
+    (K1*1000 + K2*100 + K3*10 + K4) =:=  ((I1*100 + I2*10 + I3)*J2),
+    pei_aux(2, 9, L1),
+    pei_aux(1, 9, L2),
+    pei_aux(0, 9, L3),
+    (L1*100 + L2*10 + L3) =:= ((I1*100 + I2*10 +I3)*J1),
+    pei_aux(1, 9, M1),
+    pei_aux(1, 9, M2),
+    pei_aux(0, 9, M3),
+    pei_aux(0, 9, M4),
+    ((K1*1000 + K2*100 + K3*10 + K4) + (L1*1000 + L2*100 + L3*10)) =:= (M1*1000 + M2*100 + M3*10 + M4),
+    write(' '),
+    write(' '),
+    write(I1),
+    write(' '),
+    write(I2),
+    write(' '),
+    write(I3),
+    write(' '),
+    write('*'),
+    nl,
+    write(' '),
+    write(' '),
+    write(' '),
+    write(' '),
+    write(J1),
+    write(' '),
+    write(J2),
+    write(' '),
+    write(' '),
+    nl,
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write(' '),
+    write(' '),
+    nl,
+    write(K1),
+    write(' '),
+    write(K2),
+    write(' '),
+    write(K3),
+    write(' '),
+    write(K4),
+    write(' '),
+    write('+'),
+    nl,
+    write(L1),
+    write(' '),
+    write(L2),
+    write(' '),
+    write(L3),
+    write(' '),
+    write(' '),
+    write(' '),
+    write(' '),
+    nl,
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write('-'),
+    write(' '),
+    write(' '),
+    nl,
+    write(M1),
+    write(' '),
+    write(M2),
+    write(' '),
+    write(M3),
+    write(' '),
+    write(M4),
+    write(' '),
+    write(' '),
+    !.
