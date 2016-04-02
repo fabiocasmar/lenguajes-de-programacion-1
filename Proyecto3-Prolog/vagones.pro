@@ -2,7 +2,7 @@
 %   @author    Fabio Castro (10-10132) & Patricia Reinoso (11-10851)
 %   Organización: Universidad Simón Bolívar
 %   Proyecto: Programación Lógica - Lenguajes de Programación I
-%   Versión: v0.5.0
+%   Versión: v0.6.0
 %   @license GPL
 
 
